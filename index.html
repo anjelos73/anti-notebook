@@ -1,0 +1,3542 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tecniche Avanzate di Prompting – Dashboard</title>
+  <meta name="description"
+    content="Dashboard interattiva sulle tecniche avanzate di prompting per AI e LLM: simboli, strutture, strategie e best practice." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #080c14;
+      --bg2: #0d1525;
+      --bg3: #111c35;
+      --glass: rgba(255, 255, 255, 0.04);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --accent: #6366f1;
+      --accent2: #8b5cf6;
+      --accent3: #06b6d4;
+      --accent4: #f59e0b;
+      --accent5: #10b981;
+      --accent6: #f43f5e;
+      --text: #e2e8f0;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* BG GRADIENT ORBS */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: 0;
+      animation: float 12s ease-in-out infinite;
+    }
+
+    .orb1 {
+      width: 600px;
+      height: 600px;
+      background: var(--accent);
+      top: -200px;
+      left: -150px;
+    }
+
+    .orb2 {
+      width: 500px;
+      height: 500px;
+      background: var(--accent2);
+      bottom: 100px;
+      right: -150px;
+      animation-delay: -4s;
+    }
+
+    .orb3 {
+      width: 400px;
+      height: 400px;
+      background: var(--accent3);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation-delay: -8s;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0)
+      }
+
+      50% {
+        transform: translateY(-30px)
+      }
+    }
+
+    .orb2 {
+      animation-name: float2;
+    }
+
+    @keyframes float2 {
+
+      0%,
+      100% {
+        transform: translateY(0)
+      }
+
+      50% {
+        transform: translateY(25px)
+      }
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 260px;
+      background: rgba(13, 21, 37, 0.9);
+      backdrop-filter: blur(20px);
+      border-right: 1px solid var(--glass-border);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      padding: 24px 0;
+      transition: transform .3s;
+    }
+
+    .logo {
+      padding: 0 24px 28px;
+      border-bottom: 1px solid var(--glass-border);
+      margin-bottom: 20px;
+    }
+
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .logo h1 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .logo p {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 12px;
+    }
+
+    .nav-section {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      padding: 12px 12px 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      color: var(--text-dim);
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .2s;
+      text-decoration: none;
+      position: relative;
+    }
+
+    .nav-item:hover,
+    .nav-item.active {
+      background: var(--glass);
+      color: var(--text);
+    }
+
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 70%;
+      background: var(--accent);
+      border-radius: 0 4px 4px 0;
+    }
+
+    .nav-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-footer {
+      padding: 20px 24px 0;
+      border-top: 1px solid var(--glass-border);
+      margin-top: 12px;
+    }
+
+    .sidebar-footer p {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* MAIN CONTENT */
+    .main {
+      margin-left: 260px;
+      padding: 32px 40px;
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+    }
+
+    /* TOP BAR */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 36px;
+    }
+
+    .topbar-title {
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .topbar-title span {
+      background: linear-gradient(135deg, var(--accent), var(--accent3));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .badges {
+      display: flex;
+      gap: 8px;
+    }
+
+    .badge {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid var(--glass-border);
+      background: var(--glass);
+      color: var(--text-dim);
+    }
+
+    .badge.green {
+      border-color: rgba(16, 185, 129, 0.3);
+      color: var(--accent5);
+      background: rgba(16, 185, 129, 0.08);
+    }
+
+    /* STAT CARDS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      transition: transform .2s, border-color .2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+    }
+
+    .stat-card.s1::after {
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+    }
+
+    .stat-card.s2::after {
+      background: linear-gradient(90deg, var(--accent3), var(--accent5));
+    }
+
+    .stat-card.s3::after {
+      background: linear-gradient(90deg, var(--accent4), var(--accent6));
+    }
+
+    .stat-card.s4::after {
+      background: linear-gradient(90deg, var(--accent5), var(--accent3));
+    }
+
+    .stat-icon {
+      font-size: 26px;
+      margin-bottom: 10px;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 800;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* SECTION HEADERS */
+    .section {
+      margin-bottom: 40px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .section-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+    }
+
+    .section-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .section-header p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* TECHNIQUE CARDS GRID */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .level-header {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 24px 0 8px;
+      border-bottom: 1px solid var(--glass-border);
+      margin-bottom: 4px;
+    }
+
+    .level-header:first-of-type {
+      padding-top: 0;
+    }
+
+    .level-header .lh-icon {
+      font-size: 18px;
+    }
+
+    .level-header .lh-label {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .level-header .lh-count {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+
+    .lh-base {
+      color: var(--accent5);
+    }
+
+    .lh-med {
+      color: var(--accent4);
+    }
+
+    .lh-adv {
+      color: var(--accent6);
+    }
+
+    .lh-exp {
+      color: var(--accent);
+    }
+
+    .cards-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .tech-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 22px;
+      cursor: pointer;
+      transition: all .25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tech-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.02));
+      opacity: 0;
+      transition: opacity .25s;
+    }
+
+    .tech-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: var(--shadow);
+    }
+
+    .tech-card:hover::before {
+      opacity: 1;
+    }
+
+    .tech-card.expanded {
+      border-color: var(--accent);
+      background: rgba(99, 102, 241, 0.07);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .card-emoji {
+      font-size: 28px;
+    }
+
+    .card-level {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .level-base {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent5);
+    }
+
+    .level-med {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent4);
+    }
+
+    .level-adv {
+      background: rgba(244, 63, 94, 0.15);
+      color: var(--accent6);
+    }
+
+    .level-exp {
+      background: rgba(99, 102, 241, 0.15);
+      color: var(--accent);
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    .card-details {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .4s ease, opacity .3s;
+      opacity: 0;
+    }
+
+    .card-details.open {
+      max-height: 400px;
+      opacity: 1;
+    }
+
+    .card-details-inner {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--glass-border);
+    }
+
+    .example-box {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+      padding: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--accent3);
+      line-height: 1.7;
+      margin-top: 10px;
+      border: 1px solid rgba(6, 182, 212, 0.15);
+    }
+
+    .ex-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-family: 'Inter', sans-serif;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .tag {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(99, 102, 241, 0.12);
+      color: var(--accent);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    /* SYMBOLS TABLE */
+    .symbols-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .sym-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      transition: all .2s;
+    }
+
+    .sym-card:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateX(4px);
+    }
+
+    .sym-badge {
+      min-width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .sym-content {
+      flex: 1;
+    }
+
+    .sym-name {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .sym-desc {
+      font-size: 12.5px;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    .sym-example {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--accent3);
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 6px;
+      padding: 5px 8px;
+      margin-top: 6px;
+    }
+
+    /* TIPS */
+    .tips-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .tip-item {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-left: 3px solid;
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      transition: transform .2s;
+    }
+
+    .tip-item:hover {
+      transform: translateX(6px);
+    }
+
+    .tip-item.t1 {
+      border-left-color: var(--accent);
+    }
+
+    .tip-item.t2 {
+      border-left-color: var(--accent3);
+    }
+
+    .tip-item.t3 {
+      border-left-color: var(--accent5);
+    }
+
+    .tip-item.t4 {
+      border-left-color: var(--accent4);
+    }
+
+    .tip-item.t5 {
+      border-left-color: var(--accent2);
+    }
+
+    .tip-item.t6 {
+      border-left-color: var(--accent6);
+    }
+
+    .tip-icon {
+      font-size: 22px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .tip-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .tip-text {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* COMPARISON TABLE */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .compare-table th {
+      background: rgba(99, 102, 241, 0.1);
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .compare-table td {
+      padding: 13px 16px;
+      font-size: 13.5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      vertical-align: top;
+    }
+
+    .compare-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .compare-table .check {
+      color: var(--accent5);
+    }
+
+    .compare-table .cross {
+      color: var(--accent6);
+    }
+
+    /* PROGRESS BARS */
+    .progress-item {
+      margin-bottom: 14px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .progress-label span:last-child {
+      color: var(--text-muted);
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      animation: grow 1.2s ease-out forwards;
+      transform-origin: left;
+    }
+
+    @keyframes grow {
+      from {
+        width: 0 !important;
+      }
+    }
+
+    /* SEARCH */
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      margin-bottom: 20px;
+    }
+
+    .search-bar input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .search-bar input::placeholder {
+      color: var(--text-muted);
+    }
+
+    /* PROMPT BUILDER */
+    .builder-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 28px;
+    }
+
+    .builder-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 13.5px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      border-color: var(--accent);
+    }
+
+    .form-select option {
+      background: var(--bg2);
+    }
+
+    .form-textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .prompt-output {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(6, 182, 212, 0.2);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--accent3);
+      line-height: 1.8;
+      min-height: 120px;
+      white-space: pre-wrap;
+    }
+
+    .btn {
+      padding: 10px 22px;
+      border-radius: var(--radius-sm);
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all .2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-secondary {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      color: var(--text-dim);
+    }
+
+    .btn-secondary:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      color: var(--text);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    /* DIVIDER */
+    hr.divider {
+      border: none;
+      border-top: 1px solid var(--glass-border);
+      margin: 8px 0;
+    }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* SECTION VISIBILITY */
+    .page-section {
+      display: none;
+    }
+
+    .page-section.active {
+      display: block;
+    }
+
+    /* COPY TOAST */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--accent5);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 12px 20px;
+      border-radius: var(--radius-sm);
+      z-index: 999;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all .3s;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* EXERCISE CARDS */
+    .ex-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 20px;
+      cursor: pointer;
+      transition: all .25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ex-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: var(--shadow);
+    }
+
+    .ex-card.ex-expanded {
+      border-color: var(--accent);
+      background: rgba(99, 102, 241, 0.07);
+    }
+
+    .ex-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .ex-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-muted);
+      opacity: 0.5;
+      line-height: 1;
+    }
+
+    .ex-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .ex-desc {
+      font-size: 12.5px;
+      color: var(--text-dim);
+      line-height: 1.6;
+      margin-bottom: 6px;
+    }
+
+    .ex-hint {
+      font-size: 11px;
+      color: var(--accent3);
+      font-weight: 600;
+      opacity: 0;
+      transition: opacity .2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .ex-card:hover .ex-hint {
+      opacity: 0.6;
+    }
+
+    .ex-details {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .4s ease, opacity .3s;
+      opacity: 0;
+    }
+
+    .ex-details.open {
+      max-height: 500px;
+      opacity: 1;
+    }
+
+    .ex-details-inner {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--glass-border);
+    }
+
+    .ex-answer {
+      font-size: 12.5px;
+      color: var(--text-dim);
+      line-height: 1.6;
+      margin-top: 6px;
+      padding: 10px 14px;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 8px;
+      border-left: 3px solid var(--accent5);
+    }
+
+    /* EXAM PAGE */
+    .exam-lvl-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .exam-lvl-step {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--glass-border);
+      background: var(--glass);
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      opacity: 0.4;
+      transition: all .3s;
+      cursor: pointer;
+    }
+
+    .exam-lvl-step.active {
+      opacity: 1;
+      border-color: var(--accent);
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--text);
+    }
+
+    .exam-lvl-step.done {
+      opacity: 0.8;
+      border-color: var(--accent5);
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--accent5);
+    }
+
+    .exam-lvl-step .step-icon {
+      display: block;
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+
+    .exam-lvl-step .step-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .exam-main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .exam-panel {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 28px;
+    }
+
+    .exam-panel.full {
+      grid-column: 1 / -1;
+    }
+
+    .exam-theory {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.7;
+      background: rgba(0,0,0,0.2);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      margin-bottom: 16px;
+      border-left: 3px solid var(--accent3);
+    }
+
+    .exam-theory strong {
+      color: var(--text);
+    }
+
+    .exam-checklist {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .exam-check-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-dim);
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: rgba(0,0,0,0.15);
+    }
+
+    .exam-check-item .check-icon {
+      width: 18px;
+      text-align: center;
+    }
+
+    .exam-textarea {
+      width: 100%;
+      min-height: 160px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      color: var(--text);
+      font-size: 13.5px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      resize: vertical;
+      transition: border-color .2s;
+    }
+
+    .exam-textarea:focus {
+      border-color: var(--accent);
+    }
+
+    .exam-btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .exam-progress-wrap {
+      margin-bottom: 20px;
+    }
+
+    .exam-progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .exam-progress-bar {
+      height: 8px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .exam-progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent5), var(--accent3));
+      transition: width .6s ease;
+      width: 0;
+    }
+
+    .exam-result {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .exam-result.show {
+      display: block;
+    }
+
+    .exam-stars {
+      font-size: 36px;
+      letter-spacing: 4px;
+      margin-bottom: 8px;
+    }
+
+    .exam-score {
+      font-size: 44px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--accent3));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+    }
+
+    .exam-score-label {
+      font-size: 16px;
+      color: var(--text-muted);
+    }
+
+    .exam-feedback {
+      margin-top: 14px;
+      font-size: 13.5px;
+      color: var(--text-dim);
+      line-height: 1.7;
+      padding: 14px;
+      background: rgba(0,0,0,0.2);
+      border-radius: var(--radius-sm);
+      text-align: left;
+    }
+
+    .exam-feedback strong {
+      color: var(--text);
+    }
+
+    .exam-regen {
+      margin-top: 16px;
+    }
+
+    .exam-next-lvl {
+      display: none;
+      margin-top: 16px;
+      padding: 14px;
+      background: rgba(16,185,129,0.1);
+      border: 1px solid rgba(16,185,129,0.25);
+      border-radius: var(--radius-sm);
+      text-align: center;
+    }
+
+    .exam-next-lvl.show {
+      display: block;
+    }
+
+    .exam-next-lvl p {
+      font-size: 14px;
+      color: var(--accent5);
+      font-weight: 700;
+    }
+
+    .exam-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .exam-empty .empty-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1100px) {
+      .cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .exam-main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .main {
+        margin-left: 0;
+        padding: 20px;
+      }
+
+      .cards-grid,
+      .cards-grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .symbols-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .builder-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .exam-main {
+        grid-template-columns: 1fr;
+      }
+
+      .exam-lvl-bar {
+        flex-wrap: wrap;
+      }
+
+      .exam-lvl-step {
+        flex: 1 1 45%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- BG Orbs -->
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-badge">🧠 AI Prompting</div>
+      <h1>Tecniche Avanzate<br>di Prompting</h1>
+      <p>NotebookLM Dashboard · 2025</p>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Navigazione</div>
+      <a class="nav-item active" onclick="showSection('overview')" id="nav-overview">
+        <div class="nav-dot" style="background:rgba(99,102,241,0.2)">📊</div>
+        Panoramica
+      </a>
+      <a class="nav-item" onclick="showSection('tecniche')" id="nav-tecniche">
+        <div class="nav-dot" style="background:rgba(139,92,246,0.2)">⚡</div>
+        Tecniche
+      </a>
+      <a class="nav-item" onclick="showSection('simboli')" id="nav-simboli">
+        <div class="nav-dot" style="background:rgba(6,182,212,0.2)">🔣</div>
+        Simboli & Operatori
+      </a>
+      <a class="nav-item" onclick="showSection('strutture')" id="nav-strutture">
+        <div class="nav-dot" style="background:rgba(245,158,11,0.2)">🏗️</div>
+        Strutture di Prompt
+      </a>
+      <a class="nav-item" onclick="showSection('builder')" id="nav-builder">
+        <div class="nav-dot" style="background:rgba(16,185,129,0.2)">🛠️</div>
+        Prompt Builder
+      </a>
+      <a class="nav-item" onclick="showSection('confronto')" id="nav-confronto">
+        <div class="nav-dot" style="background:rgba(244,63,94,0.2)">⚖️</div>
+        Confronto Tecniche
+      </a>
+      <a class="nav-item" onclick="showSection('esercizi')" id="nav-esercizi">
+        <div class="nav-dot" style="background:rgba(16,185,129,0.2)">✏️</div>
+        Esercizi
+      </a>
+      <a class="nav-item" onclick="showSection('esame')" id="nav-esame">
+        <div class="nav-dot" style="background:rgba(245,158,11,0.2)">🎯</div>
+        Esercitazione
+      </a>
+      <div class="nav-section" style="margin-top:12px">Risorse</div>
+      <a class="nav-item" onclick="showSection('tips')" id="nav-tips">
+        <div class="nav-dot" style="background:rgba(99,102,241,0.2)">💡</div>
+        Best Practice
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <p>📓 Basato su NotebookLM<br>Aggiornato: Giugno 2025</p>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">🚀 <span>Prompt Engineering</span> Dashboard</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-top:4px">Guida completa alle tecniche avanzate di
+          prompting per LLM</div>
+      </div>
+      <div class="badges">
+        <div class="badge green">● Aggiornato 2025</div>
+        <div class="badge">GPT-4 · Claude · Gemini</div>
+      </div>
+    </div>
+
+    <!-- ===== OVERVIEW ===== -->
+    <section class="page-section active" id="section-overview">
+      <div class="stats-grid">
+        <div class="stat-card s1">
+          <div class="stat-icon">⚡</div>
+          <div class="stat-value">12</div>
+          <div class="stat-label">Tecniche principali</div>
+        </div>
+        <div class="stat-card s2">
+          <div class="stat-icon">🔣</div>
+          <div class="stat-value">18</div>
+          <div class="stat-label">Simboli & operatori</div>
+        </div>
+        <div class="stat-card s3">
+          <div class="stat-icon">🏗️</div>
+          <div class="stat-value">7</div>
+          <div class="stat-label">Framework strutturati</div>
+        </div>
+        <div class="stat-card s4">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-value">+85%</div>
+          <div class="stat-label">Miglioramento qualità output</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <div class="section-icon" style="background:rgba(99,102,241,0.15)">📈</div>
+          <div>
+            <h2>Efficacia delle Tecniche</h2>
+            <p>Stima del miglioramento della qualità dell'output per ogni approccio</p>
+          </div>
+        </div>
+        <div class="builder-card">
+          <div class="progress-item">
+            <div class="progress-label"><span>Chain of Thought (CoT)</span><span>+95%</span></div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:95%"></div>
+            </div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label"><span>Few-Shot Prompting</span><span>+88%</span></div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:88%"></div>
+            </div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label"><span>Role Prompting</span><span>+80%</span></div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:80%"></div>
+            </div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label"><span>Tree of Thoughts (ToT)</span><span>+90%</span></div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:90%"></div>
+            </div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label"><span>ReAct Prompting</span><span>+85%</span></div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:85%"></div>
+            </div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label"><span>Structured Output</span><span>+78%</span></div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:78%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <div class="section-icon" style="background:rgba(6,182,212,0.15)">🗺️</div>
+          <div>
+            <h2>Mappa Concettuale</h2>
+            <p>Le principali aree del Prompt Engineering</p>
+          </div>
+        </div>
+        <div class="cards-grid">
+          <div class="tech-card" onclick="showSection('tecniche')">
+            <div class="card-top"><span class="card-emoji">⚡</span></div>
+            <div class="card-title">Tecniche di Ragionamento</div>
+            <div class="card-desc">Chain of Thought, Tree of Thoughts, Self-Consistency: guida il modello a ragionare
+              passo per passo.</div>
+            <div class="tags"><span class="tag">CoT</span><span class="tag">ToT</span><span
+                class="tag">Ragionamento</span></div>
+          </div>
+          <div class="tech-card" onclick="showSection('tecniche')">
+            <div class="card-top"><span class="card-emoji">🎭</span></div>
+            <div class="card-title">Tecniche di Contesto</div>
+            <div class="card-desc">Role Prompting, Few-Shot, Zero-Shot: fornisci al modello il contesto e gli esempi
+              giusti.</div>
+            <div class="tags"><span class="tag">Role</span><span class="tag">Few-Shot</span><span
+                class="tag">Esempi</span></div>
+          </div>
+          <div class="tech-card" onclick="showSection('simboli')">
+            <div class="card-top"><span class="card-emoji">🔣</span></div>
+            <div class="card-title">Simboli & Struttura</div>
+            <div class="card-desc">Usa delimitatori, parentesi, pipe e altri simboli per strutturare i prompt in modo
+              preciso.</div>
+            <div class="tags"><span class="tag">Delimitatori</span><span class="tag">Sintassi</span><span
+                class="tag">Formato</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TECNICHE ===== -->
+    <section class="page-section" id="section-tecniche">
+      <div class="search-bar">
+        <span>🔍</span>
+        <input type="text" id="search-input" placeholder="Cerca una tecnica..." oninput="filterCards()" />
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <div class="section-icon" style="background:rgba(99,102,241,0.15)">⚡</div>
+          <div>
+            <h2>Tecniche di Prompting</h2>
+            <p>Clicca su una carta per espandere i dettagli e gli esempi</p>
+          </div>
+        </div>
+        <div class="cards-grid" id="cards-container">
+
+          <!-- BASE -->
+          <div class="level-header">
+            <span class="lh-icon">⚡</span>
+            <span class="lh-label lh-base">Base</span>
+            <span class="lh-count">3 tecniche</span>
+          </div>
+
+          <div class="tech-card" onclick="toggleCard(this)">
+            <div class="card-top">
+              <span class="card-emoji">🧩</span>
+              <span class="card-level level-base">Base</span>
+            </div>
+            <div class="card-title">Zero-Shot Prompting</div>
+            <div class="card-desc">Chiedi al modello di eseguire un compito senza fornire esempi. Funziona bene con LLM
+              potenti per task semplici.</div>
+            <div class="card-details">
+              <div class="card-details-inner">
+                <div class="ex-label">Esempio</div>
+                <div class="example-box">Traduci in italiano:<br>"The weather is beautiful today."</div>
+                <div class="tags"><span class="tag">Semplicità</span><span class="tag">LLM potenti</span><span
+                    class="tag">Task diretti</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tech-card" onclick="toggleCard(this)">
+            <div class="card-top">
+              <span class="card-emoji">🎯</span>
+              <span class="card-level level-base">Base</span>
+            </div>
+            <div class="card-title">Few-Shot Prompting</div>
+            <div class="card-desc">Fornisci 2-5 esempi di input/output desiderati per guidare il comportamento del
+              modello. Migliora drasticamente la consistenza.</div>
+            <div class="card-details">
+              <div class="card-details-inner">
+                <div class="ex-label">Esempio (Analisi del Sentiment)</div>
+                <div class="example-box">Testo: "Il film era fantastico!" → Positivo<br>Testo: "Che delusione..." →
+                  Negativo<br>Testo: "È stato ok." → Neutro<br><br>Testo: "Non vedo l'ora di rivederlo!" → ?</div>
+                <div class="tags"><span class="tag">Esempi</span><span class="tag">Consistenza</span><span
+                    class="tag">Pattern</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tech-card" onclick="toggleCard(this)">
+            <div class="card-top">
+              <span class="card-emoji">🎭</span>
+              <span class="card-level level-base">Base</span>
+            </div>
+            <div class="card-title">Role Prompting</div>
+            <div class="card-desc">Assegna al modello un ruolo o una persona specifica per orientarne il tono, la
+              competenza e lo stile di risposta.</div>
+            <div class="card-details">
+              <div class="card-details-inner">
+                <div class="ex-label">Esempio</div>
+                <div class="example-box">Sei un esperto di cybersecurity con<br>20 anni di esperienza. Spiega in
+                  modo<br>semplice come funziona un attacco<br>di phishing a un principiante.</div>
+                <div class="tags"><span class="tag">Persona</span><span class="tag">Tono</span><span
+                    class="tag">Expertise</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- INTERMEDIO -->
+          <div class="level-header">
+            <span class="lh-icon">🔥</span>
+            <span class="lh-label lh-med">Intermedio</span>
+            <span class="lh-count">3 tecniche</span>
+          </div>
+
+          <div class="tech-card" onclick="toggleCard(this)">
+            <div class="card-top">
+              <span class="card-emoji">🔗</span>
+              <span class="card-level level-med">Intermedio</span>
+            </div>
+            <div class="card-title">Chain of Thought (CoT)</div>
+            <div class="card-desc">Incoraggia il modello a "pensare ad alta voce" suddividendo il ragionamento in
+              passaggi espliciti. Ideale per problemi matematici e logici.</div>
+            <div class="card-details">
+              <div class="card-details-inner">
+                <div class="ex-label">Esempio</div>
+                <div class="example-box">Domanda: Mario ha 5 mele. Ne dà 2 a Luca<br>e ne compra altre 3. Quante ne
+                  ha?<br><br>Ragiona passo per passo:<br>1. Mario parte con 5 mele<br>2. Dà via 2: 5 - 2 = 3<br>3. Ne
+                  compra 3: 3 + 3 = 6<br>Risposta: 6 mele</div>
+                <div class="tags"><span class="tag">Ragionamento</span><span class="tag">Matematica</span><span
+                    class="tag">Logica</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tech-card" onclick="toggleCard(this)">
+            <div class="card-top">
+              <span class="card-emoji">📋</span>
+              <span class="card-level level-med">Intermedio</span>
+            </div>
+            <div class="card-title">Structured Output</div>
+            <div class="card-desc">Specifica il formato esatto dell'output desiderato: JSON, XML, Markdown, tabelle.
+              Fondamentale per l'integrazione con software.</div>
+            <div class="card-details">
+              <div class="card-details-inner">
+                <div class="ex-label">Esempio JSON</div>
+                <div class="example-box">Rispondi SOLO con JSON valido:<br>{<br> "nome": "...",<br> "età": 0,<br>
+                  "competenze": ["...", "..."]<br>}</div>
+                <div class="tags"><span class="tag">JSON</span><span class="tag">API</span><span
+                    class="tag">Parsing</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tech-card" onclick="toggleCard(this)">
+            <div class="card-top">
+              <span class="card-emoji">🎓</span>
+              <span class="card-level level-med">Intermedio</span>
+            </div>
+            <div class="card-title">Instruction Tuning Style</div>
+            <div class="card-desc">Scrivi prompt chiari come istruzioni esplicite con vincoli, formato atteso, tono e
+              contesto. Riduce l'ambiguità al minimo.</div>
+            <div class="card-details">
+              <div class="card-details-inner">
+                <div class="ex-label">Template</div>
+                <div class="example-box">COMPITO: Scrivi una recensione<br>TONO: Professionale, oggettivo<br>LUNGHEZZA:
+                  150-200 parole<br>FORMATO: Paragrafo unico<br>VINCOLI: No spoiler, no linguaggio informale<br>INPUT:
+                  [nome prodotto]</div>
+                <div class="tags"><span class="tag">Template</span><span class="tag">Chiarezza</span><span
+                    class="tag">Vincoli</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AVANZATO -->
+          <div class="level-header">
+            <span class="lh-icon">🚀</span>
+            <span class="lh-label lh-adv">Avanzato</span>
+            <span class="lh-count">4 tecniche</span>
+          </div>
+
+          <div class="tech-card" onclick="toggleCard(this)">
+            <div class="card-top">
+              <span class="card-emoji">🌳</span>
+              <span class="card-level level-adv">Avanzato</span>
+            </div>
+            <div class="card-title">Tree of Thoughts (ToT)</div>
+            <div class="card-desc">Esplora più percorsi di ragionamento in parallelo come un albero, valutando ogni ramo
+              prima di scegliere il migliore. Ottimo per problemi complessi.</div>
+            <div class="card-details">
+              <div class="card-details-inner">
+                <div class="ex-label">Struttura</div>
+                <div class="example-box">Problema: [descrizione]<br><br>Approccio A: [ragionamento A]<br> → Valutazione:
+                  buono ma lento<br>Approccio B: [ragionamento B]<br> → Valutazione: ottimale ✓<br>Approccio C:
+                  [ragionamento C]<br> → Valutazione: non fattibile<br><br>Scelgo l'Approccio B perché...</div>
+                <div class="tags"><span class="tag">Esplorazione</span><span class="tag">Valutazione</span><span
+                    class="tag">Problemi complessi</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tech-card" onclick="toggleCard(this)">
+            <div class="card-top">
+              <span class="card-emoji">🔄</span>
+              <span class="card-level level-adv">Avanzato</span>
+            </div>
+            <div class="card-title">Self-Consistency</div>
+            <div class="card-desc">Genera più risposte indipendenti con CoT e seleziona la più frequente (voting).
+              Riduce gli errori casuali e aumenta l'affidabilità.</div>
+            <div class="card-details">
+              <div class="card-details-inner">
+                <div class="ex-label">Struttura</div>
+                <div class="example-box">Risposta 1: [ragionamento] → X<br>Risposta 2: [ragionamento] → X<br>Risposta 3:
+                  [ragionamento] → Y<br>Risposta 4: [ragionamento] → X<br><br>Maggioranza: X ← risposta finale</div>
+                <div class="tags"><span class="tag">Voting</span><span class="tag">Affidabilità</span><span
+                    class="tag">Ridondanza</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tech-card" onclick="toggleCard(this)">
+            <div class="card-top">
+              <span class="card-emoji">🤖</span>
+              <span class="card-level level-adv">Avanzato</span>
+            </div>
+            <div class="card-title">ReAct Prompting</div>
+            <div class="card-desc">Combina Ragionamento (REasoning) e Azione (ACTing). Il modello alterna pensieri e
+              azioni in un loop iterativo. Base degli agenti AI.</div>
+            <div class="card-details">
+              <div class="card-details-inner">
+                <div class="ex-label">Loop ReAct</div>
+                <div class="example-box">Pensiero: Devo trovare la capitale della Francia<br>Azione: search("capitale
+                  Francia")<br>Osservazione: "Parigi è la capitale"<br>Pensiero: Ho trovato la risposta<br>Risposta
+                  Finale: Parigi</div>
+                <div class="tags"><span class="tag">Agenti</span><span class="tag">Tool use</span><span
+                    class="tag">Iterativo</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tech-card" onclick="toggleCard(this)">
+            <div class="card-top">
+              <span class="card-emoji">🔍</span>
+              <span class="card-level level-adv">Avanzato</span>
+            </div>
+            <div class="card-title">Self-Refinement</div>
+            <div class="card-desc">Chiedi al modello di criticare e migliorare il proprio output in più passaggi
+              iterativi. Come avere un revisore interno.</div>
+            <div class="card-details">
+              <div class="card-details-inner">
+                <div class="ex-label">Loop di Raffinamento</div>
+                <div class="example-box">1. Genera la risposta iniziale<br>2. "Criticate questa risposta: dove<br> è
+                  imprecisa o incompleta?"<br>3. "Ora migliorala basandoti<br> su quelle critiche"<br>4. Ripeti fino
+                  alla soddisfazione</div>
+                <div class="tags"><span class="tag">Iterativo</span><span class="tag">Auto-critica</span><span
+                    class="tag">Qualità</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ESPERTO -->
+          <div class="level-header">
+            <span class="lh-icon">💎</span>
+            <span class="lh-label lh-exp">Esperto</span>
+            <span class="lh-count">2 tecniche</span>
+          </div>
+
+          <div class="tech-card" onclick="toggleCard(this)">
+            <div class="card-top">
+              <span class="card-emoji">🔀</span>
+              <span class="card-level level-exp">Esperto</span>
+            </div>
+            <div class="card-title">Meta-Prompting</div>
+            <div class="card-desc">Usa un LLM per generare o ottimizzare altri prompt. Automatizza la creazione di
+              prompt di alta qualità attraverso l'AI stessa.</div>
+            <div class="card-details">
+              <div class="card-details-inner">
+                <div class="ex-label">Esempio</div>
+                <div class="example-box">Sei un esperto di prompt engineering.<br>Ottimizza questo prompt per
+                  ottenere<br>risultati migliori da un LLM:<br><br>[prompt originale da migliorare]<br><br>Fornisci la
+                  versione migliorata e<br>spiega le modifiche apportate.</div>
+                <div class="tags"><span class="tag">Auto-ottimizzazione</span><span class="tag">APE</span><span
+                    class="tag">Meta-AI</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tech-card" onclick="toggleCard(this)">
+            <div class="card-top">
+              <span class="card-emoji">🧲</span>
+              <span class="card-level level-exp">Esperto</span>
+            </div>
+            <div class="card-title">Prompt Chaining</div>
+            <div class="card-desc">Collega più prompt in una pipeline sequenziale dove l'output di uno diventa l'input
+              del successivo. Ideale per task complessi multi-step.</div>
+            <div class="card-details">
+              <div class="card-details-inner">
+                <div class="ex-label">Pipeline</div>
+                <div class="example-box">Step 1: "Ricerca le info su [topic]"<br> ↓ output → input Step 2<br>Step 2:
+                  "Sintetizza in 5 punti chiave"<br> ↓ output → input Step 3<br>Step 3: "Scrivi un articolo basato su
+                  questi punti"</div>
+                <div class="tags"><span class="tag">Pipeline</span><span class="tag">Multi-step</span><span
+                    class="tag">Workflow</span></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SIMBOLI ===== -->
+    <section class="page-section" id="section-simboli">
+      <div class="section">
+        <div class="section-header">
+          <div class="section-icon" style="background:rgba(6,182,212,0.15)">🔣</div>
+          <div>
+            <h2>Simboli & Operatori nei Prompt</h2>
+            <p>I simboli che cambiano tutto — usali per strutturare e potenziare i tuoi prompt</p>
+          </div>
+        </div>
+        <div class="symbols-grid">
+
+          <div class="sym-card">
+            <div class="sym-badge">"""</div>
+            <div class="sym-content">
+              <div class="sym-name">Triple Quotes — Delimitatore</div>
+              <div class="sym-desc">Delimita il testo di input separandolo dalle istruzioni. Evita ambiguità e
+                injection.</div>
+              <div class="sym-example">Analizza questo testo: """[testo da analizzare]"""</div>
+            </div>
+          </div>
+
+          <div class="sym-card">
+            <div class="sym-badge">###</div>
+            <div class="sym-content">
+              <div class="sym-name">Triple Hash — Separatore di sezione</div>
+              <div class="sym-desc">Divide visivamente le sezioni del prompt: contesto, istruzioni, output.</div>
+              <div class="sym-example">### CONTESTO ###<br>### COMPITO ###<br>### OUTPUT ###</div>
+            </div>
+          </div>
+
+          <div class="sym-card">
+            <div class="sym-badge">[ ]</div>
+            <div class="sym-content">
+              <div class="sym-name">Parentesi Quadre — Placeholder</div>
+              <div class="sym-desc">Indica variabili o campi da sostituire nel template del prompt. Standard de facto.
+              </div>
+              <div class="sym-example">Scrivi un testo su [argomento] per [pubblico]</div>
+            </div>
+          </div>
+
+          <div class="sym-card">
+            <div class="sym-badge">{ }</div>
+            <div class="sym-content">
+              <div class="sym-name">Parentesi Graffe — Variabili dinamiche</div>
+              <div class="sym-desc">Usate per variabili nei template di prompt programmabili e nei sistemi
+                automatizzati.</div>
+              <div class="sym-example">Sei un assistente per {azienda}. Aiuta {utente}.</div>
+            </div>
+          </div>
+
+          <div class="sym-card">
+            <div class="sym-badge">&lt;&gt;</div>
+            <div class="sym-content">
+              <div class="sym-name">Tag XML — Struttura semantica</div>
+              <div class="sym-desc">Usati da Anthropic/Claude per strutturare il prompt in blocchi semantici chiari.
+              </div>
+              <div class="sym-example">&lt;context&gt;...&lt;/context&gt;<br>&lt;task&gt;...&lt;/task&gt;</div>
+            </div>
+          </div>
+
+          <div class="sym-card">
+            <div class="sym-badge">|</div>
+            <div class="sym-content">
+              <div class="sym-name">Pipe — Opzioni alternative</div>
+              <div class="sym-desc">Separa opzioni o alternative in elenchi compatti e leggibili.</div>
+              <div class="sym-example">Tono: formale | informale | neutro</div>
+            </div>
+          </div>
+
+          <div class="sym-card">
+            <div class="sym-badge">→</div>
+            <div class="sym-content">
+              <div class="sym-name">Freccia — Mapping input/output</div>
+              <div class="sym-desc">Indica la relazione tra input e output negli esempi few-shot. Rende il pattern
+                esplicito.</div>
+              <div class="sym-example">Gatto → Cat<br>Cane → Dog</div>
+            </div>
+          </div>
+
+          <div class="sym-card">
+            <div class="sym-badge">---</div>
+            <div class="sym-content">
+              <div class="sym-name">Trattini — Divisore orizzontale</div>
+              <div class="sym-desc">Separa blocchi logici del prompt, come contesto da istruzioni o esempi da domanda.
+              </div>
+              <div class="sym-example">Contesto: ...<br>---<br>Domanda: ...</div>
+            </div>
+          </div>
+
+          <div class="sym-card">
+            <div class="sym-badge">*</div>
+            <div class="sym-content">
+              <div class="sym-name">Asterisco — Enfasi / Wildcard</div>
+              <div class="sym-desc">Enfatizza parole chiave o usato come wildcard in alcune sintassi di prompting.</div>
+              <div class="sym-example">IMPORTANTE: rispondi *solo* in italiano</div>
+            </div>
+          </div>
+
+          <div class="sym-card">
+            <div class="sym-badge">1.</div>
+            <div class="sym-content">
+              <div class="sym-name">Liste Numerate — Ordine esplicito</div>
+              <div class="sym-desc">Forza il modello a seguire un ordine preciso. Chiarisce la priorità e la sequenza.
+              </div>
+              <div class="sym-example">1. Prima analizza il tono<br>2. Poi identifica i temi<br>3. Infine scrivi il
+                riassunto</div>
+            </div>
+          </div>
+
+          <div class="sym-card">
+            <div class="sym-badge">✅❌</div>
+            <div class="sym-content">
+              <div class="sym-name">Emoji — Segnali visivi</div>
+              <div class="sym-desc">Le emoji migliorano la leggibilità e segnalano visivamente do's e don'ts al modello.
+              </div>
+              <div class="sym-example">✅ Usa linguaggio semplice<br>❌ Non usare tecnicismi<br>✅ Sii conciso</div>
+            </div>
+          </div>
+
+          <div class="sym-card">
+            <div class="sym-badge">Q: A:</div>
+            <div class="sym-content">
+              <div class="sym-name">Q&A Format — Struttura dialogo</div>
+              <div class="sym-desc">Struttura il prompt in formato domanda-risposta per guidare lo stile dialogico del
+                modello.</div>
+              <div class="sym-example">Q: Cos'è il machine learning?<br>A: Il machine learning è...</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== STRUTTURE ===== -->
+    <section class="page-section" id="section-strutture">
+      <div class="section">
+        <div class="section-header">
+          <div class="section-icon" style="background:rgba(245,158,11,0.15)">🏗️</div>
+          <div>
+            <h2>Framework Strutturati</h2>
+            <p>Template pronti all'uso per costruire prompt efficaci</p>
+          </div>
+        </div>
+        <div class="cards-grid-2">
+
+          <div class="tech-card">
+            <div class="card-top"><span class="card-emoji">🎯</span><span class="card-level level-base">Classico</span>
+            </div>
+            <div class="card-title">Framework ROLE-TASK-FORMAT</div>
+            <div class="card-desc">Il template più universale. Definisci chi è il modello, cosa deve fare e come deve
+              rispondere.</div>
+            <div class="card-details open">
+              <div class="card-details-inner">
+                <div class="example-box">RUOLO: Sei [persona/esperto]<br>COMPITO: [descrizione precisa del
+                  task]<br>CONTESTO: [informazioni rilevanti]<br>FORMATO: [come vuoi la risposta]<br>VINCOLI: [cosa
+                  evitare]</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tech-card">
+            <div class="card-top"><span class="card-emoji">⭐</span><span class="card-level level-base">Classico</span>
+            </div>
+            <div class="card-title">Framework STAR</div>
+            <div class="card-desc">Situation, Task, Action, Result. Perfetto per prompt narrativi e analitici che
+              richiedono struttura logica.</div>
+            <div class="card-details open">
+              <div class="card-details-inner">
+                <div class="example-box">SITUAZIONE: [contesto e background]<br>COMPITO: [obiettivo da
+                  raggiungere]<br>AZIONE: [cosa fare / come procedere]<br>RISULTATO: [output atteso / metriche]</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tech-card">
+            <div class="card-top"><span class="card-emoji">🔬</span><span class="card-level level-med">Specifico</span>
+            </div>
+            <div class="card-title">Framework CRISPE</div>
+            <div class="card-desc">Capacity, Role, Insight, Statement, Personality, Experiment. Framework completo per
+              prompt professionali.</div>
+            <div class="card-details open">
+              <div class="card-details-inner">
+                <div class="example-box">C - Capacità: cosa sei in grado di fare<br>R - Ruolo: la tua funzione
+                  specifica<br>I - Insight: il tuo punto di vista<br>S - Statement: istruzione chiara<br>P -
+                  Personalità: tono e stile<br>E - Esperimento: formato output</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tech-card">
+            <div class="card-top"><span class="card-emoji">📝</span><span class="card-level level-adv">Avanzato</span>
+            </div>
+            <div class="card-title">System + User Prompt Split</div>
+            <div class="card-desc">Separa le istruzioni di sistema (persistenti) dal messaggio utente (variabile).
+              Standard nelle API di OpenAI e Anthropic.</div>
+            <div class="card-details open">
+              <div class="card-details-inner">
+                <div class="example-box">SYSTEM: Sei un assistente esperto di<br>marketing digitale. Rispondi
+                  sempre<br>in italiano. Sii conciso e pratico.<br><br>USER: Come posso migliorare il CTR<br>delle mie
+                  email?</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tech-card">
+            <div class="card-top"><span class="card-emoji">🔁</span><span class="card-level level-adv">Iterativo</span>
+            </div>
+            <div class="card-title">RTF — Repeat-Transform-Format</div>
+            <div class="card-desc">Fai ripetere l'input al modello, trasformarlo e riformattarlo. Ottimo per editing e
+              riscrittura.</div>
+            <div class="card-details open">
+              <div class="card-details-inner">
+                <div class="example-box">1. RIPETI il testo originale<br>2. IDENTIFICA i problemi principali<br>3.
+                  TRASFORMA migliorando i problemi<br>4. FORMATTA in [formato desiderato]<br><br>Testo: [testo da
+                  migliorare]</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tech-card">
+            <div class="card-top"><span class="card-emoji">🧠</span><span class="card-level level-exp">Esperto</span>
+            </div>
+            <div class="card-title">Expert Panel Simulation</div>
+            <div class="card-desc">Il modello simula un panel di esperti con prospettive diverse che dibattono un
+              problema. Risultati estremamente ricchi.</div>
+            <div class="card-details open">
+              <div class="card-details-inner">
+                <div class="example-box">Simula un panel di esperti su [tema]:<br>- Esperto A (ottimista): "..."<br>-
+                  Esperto B (critico): "..."<br>- Esperto C (pragmatico): "..."<br><br>Poi fornisci una sintesi delle
+                  posizioni.</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== BUILDER ===== -->
+    <section class="page-section" id="section-builder">
+      <div class="section">
+        <div class="section-header">
+          <div class="section-icon" style="background:rgba(16,185,129,0.15)">🛠️</div>
+          <div>
+            <h2>Prompt Builder Interattivo</h2>
+            <p>Costruisci un prompt ottimizzato compilando i campi qui sotto</p>
+          </div>
+        </div>
+        <div class="builder-card">
+          <div class="builder-grid">
+            <div>
+              <div class="form-group">
+                <label class="form-label">🎭 Ruolo / Persona</label>
+                <input class="form-input" id="b-role" placeholder="es. Sei un esperto di marketing digitale..."
+                  oninput="buildPrompt()" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">🎯 Compito principale</label>
+                <textarea class="form-textarea" id="b-task" placeholder="es. Scrivi un piano editoriale per LinkedIn..."
+                  oninput="buildPrompt()" style="min-height:80px"></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">📚 Contesto / Background</label>
+                <textarea class="form-textarea" id="b-context" placeholder="es. L'azienda si chiama X e vende Y a Z..."
+                  oninput="buildPrompt()" style="min-height:70px"></textarea>
+              </div>
+            </div>
+            <div>
+              <div class="form-group">
+                <label class="form-label">⚙️ Tecnica</label>
+                <select class="form-select" id="b-technique" onchange="buildPrompt()">
+                  <option value="">Nessuna tecnica specifica</option>
+                  <option value="cot">Chain of Thought (passo per passo)</option>
+                  <option value="fewshot">Few-Shot (con esempi)</option>
+                  <option value="self">Self-Refinement (autocritica)</option>
+                  <option value="expert">Expert Panel</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">📋 Formato output</label>
+                <select class="form-select" id="b-format" onchange="buildPrompt()">
+                  <option value="">Libero</option>
+                  <option value="bullet">Elenco puntato</option>
+                  <option value="numbered">Elenco numerato</option>
+                  <option value="json">JSON strutturato</option>
+                  <option value="table">Tabella Markdown</option>
+                  <option value="para">Paragrafi narrativi</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">🚫 Vincoli / Cosa evitare</label>
+                <input class="form-input" id="b-constraints" placeholder="es. Non usare tecnicismi, max 300 parole..."
+                  oninput="buildPrompt()" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">🌍 Lingua</label>
+                <select class="form-select" id="b-lang" onchange="buildPrompt()">
+                  <option value="italiano">Italiano</option>
+                  <option value="inglese">Inglese</option>
+                  <option value="entrambe">Entrambe</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <hr class="divider" style="margin:20px 0" />
+
+          <div class="ex-label" style="margin-bottom:10px">✨ Prompt Generato</div>
+          <div class="prompt-output" id="prompt-output">Compila i campi sopra per generare il tuo prompt ottimizzato...
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" onclick="copyPrompt()">📋 Copia Prompt</button>
+            <button class="btn btn-secondary" onclick="resetBuilder()">🔄 Reset</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CONFRONTO ===== -->
+    <section class="page-section" id="section-confronto">
+      <div class="section">
+        <div class="section-header">
+          <div class="section-icon" style="background:rgba(244,63,94,0.15)">⚖️</div>
+          <div>
+            <h2>Confronto Tecniche</h2>
+            <p>Quale tecnica usare per quale scenario?</p>
+          </div>
+        </div>
+        <div class="builder-card" style="overflow-x:auto">
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>Tecnica</th>
+                <th>Complessità</th>
+                <th>Task Logici</th>
+                <th>Task Creativi</th>
+                <th>Costo Token</th>
+                <th>Affidabilità</th>
+                <th>Consigliato per</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Zero-Shot</strong></td>
+                <td>⭐</td>
+                <td><span class="cross">✗</span></td>
+                <td><span class="check">✓</span></td>
+                <td>Basso</td>
+                <td>Media</td>
+                <td>Task semplici, bozze</td>
+              </tr>
+              <tr>
+                <td><strong>Few-Shot</strong></td>
+                <td>⭐⭐</td>
+                <td><span class="check">✓</span></td>
+                <td><span class="check">✓</span></td>
+                <td>Medio</td>
+                <td>Alta</td>
+                <td>Classificazione, estrazione</td>
+              </tr>
+              <tr>
+                <td><strong>Chain of Thought</strong></td>
+                <td>⭐⭐</td>
+                <td><span class="check">✓✓</span></td>
+                <td><span class="cross">✗</span></td>
+                <td>Medio</td>
+                <td>Alta</td>
+                <td>Math, logica, ragionamento</td>
+              </tr>
+              <tr>
+                <td><strong>Tree of Thoughts</strong></td>
+                <td>⭐⭐⭐⭐</td>
+                <td><span class="check">✓✓</span></td>
+                <td><span class="check">✓</span></td>
+                <td>Molto alto</td>
+                <td>Molto alta</td>
+                <td>Problemi complessi, pianificazione</td>
+              </tr>
+              <tr>
+                <td><strong>Role Prompting</strong></td>
+                <td>⭐</td>
+                <td><span class="check">✓</span></td>
+                <td><span class="check">✓✓</span></td>
+                <td>Basso</td>
+                <td>Media</td>
+                <td>Stile, tono, expertise</td>
+              </tr>
+              <tr>
+                <td><strong>Self-Consistency</strong></td>
+                <td>⭐⭐⭐</td>
+                <td><span class="check">✓✓</span></td>
+                <td><span class="cross">✗</span></td>
+                <td>Alto (×N)</td>
+                <td>Molto alta</td>
+                <td>Risposte critiche, fact-checking</td>
+              </tr>
+              <tr>
+                <td><strong>ReAct</strong></td>
+                <td>⭐⭐⭐⭐</td>
+                <td><span class="check">✓✓</span></td>
+                <td><span class="cross">✗</span></td>
+                <td>Alto</td>
+                <td>Alta</td>
+                <td>Agenti AI, tool use</td>
+              </tr>
+              <tr>
+                <td><strong>Self-Refinement</strong></td>
+                <td>⭐⭐⭐</td>
+                <td><span class="check">✓</span></td>
+                <td><span class="check">✓✓</span></td>
+                <td>Medio-alto</td>
+                <td>Alta</td>
+                <td>Scrittura, editing, qualità</td>
+              </tr>
+              <tr>
+                <td><strong>Prompt Chaining</strong></td>
+                <td>⭐⭐⭐⭐</td>
+                <td><span class="check">✓</span></td>
+                <td><span class="check">✓</span></td>
+                <td>Alto</td>
+                <td>Molto alta</td>
+                <td>Workflow complessi, pipeline</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ESERCIZI ===== -->
+    <section class="page-section" id="section-esercizi">
+      <div class="section">
+        <div class="section-header">
+          <div class="section-icon" style="background:rgba(16,185,129,0.15)">✏️</div>
+          <div>
+            <h2>Esercizi di Prompting</h2>
+            <p>Clicca su un esercizio per vedere il prompt suggerito e l'obiettivo</p>
+          </div>
+        </div>
+
+        <!-- BASE -->
+        <div class="section" style="margin-bottom:28px">
+          <div class="section-header" style="margin-bottom:14px">
+            <div class="section-icon" style="background:rgba(16,185,129,0.12);width:28px;height:28px;font-size:14px">⚡</div>
+            <div>
+              <h2 style="font-size:15px">Base</h2>
+              <p style="font-size:11px">Fondamenti di prompting — Zero-Shot, Few-Shot, Role</p>
+            </div>
+          </div>
+          <div class="cards-grid-2">
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">01</span><span class="card-level level-base">Base</span></div>
+              <div class="ex-title">Traduzione semplice</div>
+              <div class="ex-desc">Traduci una frase dall'italiano all'inglese senza fornire esempi.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Traduci in inglese:<br>"Oggi è una giornata perfetta per imparare qualcosa di nuovo."</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Osserva come un LLM potente gestisce task semplici senza esempi (Zero-Shot).</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">02</span><span class="card-level level-base">Base</span></div>
+              <div class="ex-title">Riassunto rapido</div>
+              <div class="ex-desc">Chiedi al modello di riassumere un breve testo in una riga.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Riassumi questo testo in massimo una riga:<br><br>"L'intelligenza artificiale sta rivoluzionando il modo in cui lavoriamo, studiamo e ci divertiamo. Dalla medicina alla finanza, le applicazioni sono infinite e il potenziale è ancora in gran parte inesplorato."</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Verifica la capacità di sintesi del modello. Se è troppo lungo, aggiungi un vincolo di parole.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">03</span><span class="card-level level-base">Base</span></div>
+              <div class="ex-title">Classificazione sentiment</div>
+              <div class="ex-desc">Classifica una frase come Positivo, Negativo o Neutro senza esempi.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Classifica il sentiment di questa frase come Positivo, Negativo o Neutro:<br><br>"Il servizio clienti è stato terribile, ho aspettato un'ora al telefono."</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Zero-Shot per classificazione. Se il modello è incerto, prova a fornire un esempio (Few-Shot).</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">04</span><span class="card-level level-base">Base</span></div>
+              <div class="ex-title">Estrarre dati con esempi</div>
+              <div class="ex-desc">Usa 2 esempi per estrarre nome, età e città da un testo.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Estrai Nome, Età e Città da ogni testo:<br><br>Testo: "Michele, 34 anni, vive a Roma" → Nome: Michele, Età: 34, Città: Roma<br>Testo: "Sofia ha 28 anni ed è di Milano" → Nome: Sofia, Età: 28, Città: Milano<br><br>Testo: "Luca, 45enne di Napoli, lavora come ingegnere" → ?</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Few-Shot: il modello impara il formato dal pattern degli esempi e lo applica al nuovo caso.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">05</span><span class="card-level level-base">Base</span></div>
+              <div class="ex-title">Generare titoli</div>
+              <div class="ex-desc">Fornisci 3 esempi di titoli e chiedi al modello di generarli per un tema nuovo.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Ecco alcuni titoli accattivanti:<br>"Scopri il Segreto per..." → Cliccabile<br>"10 Modi per..." → Lista<br>"Perché Tutti Parlano di..." → Tendenze<br><br>Ora genera 3 titoli accattivanti per un articolo sulla meditazione.</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Il modello replica lo stile e la struttura degli esempi (Few-Shot per stile creativo).</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">06</span><span class="card-level level-base">Base</span></div>
+              <div class="ex-title">Voce da esperto</div>
+              <div class="ex-desc">Assegna un ruolo esperto e osserva come cambia il tono della risposta.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Sei un nutrizionista con 15 anni di esperienza.<br>Spiega in modo semplice e diretto perché la colazione è importante, a un ragazzo di 20 anni che salta sempre il primo pasto.</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Il ruolo guida tono, linguaggio e autorevolezza. Prova a cambiare ruolo e confronta le risposte.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">07</span><span class="card-level level-base">Base</span></div>
+              <div class="ex-title">Spiega a un bambino</div>
+              <div class="ex-desc">Usa Role Prompting per adattare la spiegazione a un pubblico specifico.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Sei un insegnante di matematica della scuola elementare.<br>Spiega cosa sono le frazioni a un bambino di 10 anni, usando esempi con la pizza.</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Il modello adatta complessità, vocabolario e metafore al pubblico specificato nel ruolo.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">08</span><span class="card-level level-base">Base</span></div>
+              <div class="ex-title">Cambio di tono</div>
+              <div class="ex-desc">Chiedi la stessa informazione con due ruoli opposti e confronta.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Prompt A — "Sei un CEO di una startup. Parla dell'importanza del fallimento."<br><br>Prompt B — "Sei un filosofo stoico. Parla dell'importanza del fallimento."<br><br>Confronta le due risposte.</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Stesso tema, prospettive radicalmente diverse. Il ruolo cambia profondamente contenuto e tono.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">09</span><span class="card-level level-base">Base</span></div>
+              <div class="ex-title">Elenco puntato</div>
+              <div class="ex-desc">Chiedi un elenco strutturato specificando il formato nell'istruzione.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Elenca i 3 punti chiave di questo testo, usando SOLO bullet points (•):<br><br>"Dormire bene è fondamentale per la salute. Migliora la memoria, rafforza il sistema immunitario e regola l'umore. Un adulto dovrebbe dormire 7-9 ore per notte."</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Specificare il formato nell'istruzione (bullet) produce output strutturato senza bisogno di esempi.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">10</span><span class="card-level level-base">Base</span></div>
+              <div class="ex-title">Tabella comparativa</div>
+              <div class="ex-desc">Fornisci un esempio di tabella e chiedi una comparazione simile.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Ecco una tabella comparativa:<br><br>| Caratteristica | Python | JavaScript |<br>|---------------|--------|------------|<br>| Tipizzazione | Dinamica | Dinamica |<br>| Uso principale | Data Science | Web |<br><br>Ora crea una tabella simile comparando React e Vue.</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Few-Shot per formato: il modello replica la struttura della tabella Markdown dall'esempio.</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- INTERMEDIO -->
+        <div class="section" style="margin-bottom:28px">
+          <div class="section-header" style="margin-bottom:14px">
+            <div class="section-icon" style="background:rgba(245,158,11,0.12);width:28px;height:28px;font-size:14px">🔥</div>
+            <div>
+              <h2 style="font-size:15px">Intermedio</h2>
+              <p style="font-size:11px">Chain of Thought, Structured Output, Instruction Tuning</p>
+            </div>
+          </div>
+          <div class="cards-grid-2">
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">11</span><span class="card-level level-med">Intermedio</span></div>
+              <div class="ex-title">Problema di logica</div>
+              <div class="ex-desc">Risolvi un indovinello logico ragionando passo per passo.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Ragiona passo per passo:<br><br>"Se 3 gatti catturano 3 topi in 3 minuti, quanti gatti servono per catturare 100 topi in 100 minuti?"</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">CoT è essenziale per problemi logici. Senza il passo per passo, il modello spesso sbaglia.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">12</span><span class="card-level level-med">Intermedio</span></div>
+              <div class="ex-title">Decisione economica</div>
+              <div class="ex-desc">Usa CoT per confrontare due opzioni e decidere la più conveniente.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Ragiona passo per passo:<br>"Conviene comprare un abbonamento da 50€/mese o pagare 7€ a sessione se faccio 10 sessioni al mese? E se ne faccio 5?"</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Il modello calcola entrambi gli scenari. CoT evita errori di calcolo e mostra il confronto.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">13</span><span class="card-level level-med">Intermedio</span></div>
+              <div class="ex-title">Treno in movimento</div>
+              <div class="ex-desc">Risolvi un problema di velocità relativa con ragionamento esplicito.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Ragiona passo per passo:<br>"Un treno parte da Milano alle 8:00 a 120 km/h. Un altro parte da Roma alle 9:00 a 140 km/h. La distanza Milano-Roma è 570 km. A che ora si incontrano?"</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Problema con dati temporali asincroni. CoT aiuta a gestire la complessità del calcolo.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">14</span><span class="card-level level-med">Intermedio</span></div>
+              <div class="ex-title">Output JSON strutturato</div>
+              <div class="ex-desc">Estrai dati da un testo e restituiscili in formato JSON valido.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Rispondi SOLO con JSON valido, senza testo aggiuntivo:<br><br>"La nuova PS5 Pro costa 799€ ed è disponibile da novembre. Include un SSD da 2TB e supporta il ray tracing avanzato."<br><br>Estrai: nome, prezzo, disponibilità, specifiche (array).</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Structured Output per integrazione API. Il modello deve rispettare il formato JSON alla lettera.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">15</span><span class="card-level level-med">Intermedio</span></div>
+              <div class="ex-title">Tabella linguaggi</div>
+              <div class="ex-desc">Organizza dati comparativi in una tabella Markdown.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Crea una tabella Markdown comparando 5 linguaggi di programmazione. Colonne: Linguaggio, Facilità (1-10), Velocità (1-10), Uso Principale.</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Il formato tabella è ideale per dati strutturati. Specifica esattamente colonne e righe.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">16</span><span class="card-level level-med">Intermedio</span></div>
+              <div class="ex-title">Output XML</div>
+              <div class="ex-desc">Chiedi una risposta in formato XML ben formato.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Rispondi SOLO con XML valido:<br><br>"Elenca 3 libri di fantascienza con titolo, autore e anno di pubblicazione."<br><br>Usa la struttura: &lt;libri&gt;&lt;libro&gt;&lt;titolo&gt;...&lt;/titolo&gt;&lt;/libro&gt;&lt;/libri&gt;</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">XML è usato da Claude/Anthropic. Utile per prompt che devono essere parsati da sistemi esterni.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">17</span><span class="card-level level-med">Intermedio</span></div>
+              <div class="ex-title">Prompt strutturato completo</div>
+              <div class="ex-desc">Usa il template Instruction Tuning con tutti i campi.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">COMPITO: Scrivi una recensione di un ristorante<br>TONO: Professionale ma caloroso<br>LUNGHEZZA: 100-150 parole<br>FORMATO: Paragrafo unico<br>VINCOLI: Menziona il servizio, l'ambiente e il cibo. No spoiler sul prezzo.<br>INPUT: Ristorante "Da Mario", cucina tipica toscana, appena aperto.</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Instruction Tuning: vincoli precisi producono output mirato e consistente, riducendo ambiguità.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">18</span><span class="card-level level-med">Intermedio</span></div>
+              <div class="ex-title">Email con vincoli</div>
+              <div class="ex-desc">Scrivi un'email rispettando vincoli precisi di lunghezza e tono.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Scrivi un'email professionale di massimo 100 parole per informare un cliente che la sua richiesta è stata approvata.<br><br>TONO: Formale ma cordiale<br>VINCOLI: Niente gergo tecnico. Usa "Gentile" come apertura. Chiudi con ringraziamento e disponibilità.</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Vincoli multipli: il modello deve bilanciare lunghezza, tono e contenuto simultaneamente.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">19</span><span class="card-level level-med">Intermedio</span></div>
+              <div class="ex-title">Pro e contro ragionati</div>
+              <div class="ex-desc">Analisi comparativa con ragionamento passo per passo.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Ragiona passo per passo: confronta lavorare da remoto vs in ufficio.<br><br>Per ciascuna opzione elenca: 3 vantaggi, 3 svantaggi, e un giudizio finale su chi potrebbe preferirla.</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">CoT applicato ad analisi qualitativa. Il ragionamento strutturato migliora la profondità dell'analisi.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">20</span><span class="card-level level-med">Intermedio</span></div>
+              <div class="ex-title">CSV da testo</div>
+              <div class="ex-desc">Converti dati testuali in formato CSV puro.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Rispondi SOLO con CSV valido (intestazione + dati, separato da virgole):<br><br>"Elenca 5 città italiane con: nome, popolazione approssimativa, regione di appartenenza."</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Structured Output in formato CSV. Utile per esportare dati direttamente in fogli di calcolo.</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- AVANZATO -->
+        <div class="section" style="margin-bottom:28px">
+          <div class="section-header" style="margin-bottom:14px">
+            <div class="section-icon" style="background:rgba(244,63,94,0.12);width:28px;height:28px;font-size:14px">🚀</div>
+            <div>
+              <h2 style="font-size:15px">Avanzato</h2>
+              <p style="font-size:11px">Tree of Thoughts, Self-Consistency, ReAct, Self-Refinement</p>
+            </div>
+          </div>
+          <div class="cards-grid-2">
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">21</span><span class="card-level level-adv">Avanzato</span></div>
+              <div class="ex-title">Albero di decisioni</div>
+              <div class="ex-desc">Esplora 3 strategie con ToT: valuta costi, rischi e benefici di ciascuna.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Problema: "Un'azienda di software deve espandersi. Ha 3 opzioni: acquisire un competitor, aprire una sede all'estero, o lanciare un nuovo prodotto."<br><br>Approccio A: Acquisizione — analizza costi, rischi, benefici<br>Approccio B: Espansione estera — analizza costi, rischi, benefici<br>Approccio C: Nuovo prodotto — analizza costi, rischi, benefici<br><br>Valuta ogni approccio e indica il migliore con motivazione.</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">ToT forza il modello a esplorare più percorsi separatamente prima di decidere, migliorando la qualità della scelta.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">22</span><span class="card-level level-adv">Avanzato</span></div>
+              <div class="ex-title">Strategia di marketing</div>
+              <div class="ex-desc">Valuta 3 approcci di marketing con pro/contro separati.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Un nuovo brand di cosmetici vegan deve scegliere il canale di marketing principale.<br><br>Approccio A: Influencer marketing<br> → Budget: medio, Reach: alto, Targeting: medio<br>Approccio B: SEO & contenuti<br> → Budget: basso, Reach: lento, Targeting: alto<br>Approccio C: Pubblicità a pagamento<br> → Budget: alto, Reach: immediato, Targeting: alto<br><br>Valuta ciascuno e raccomanda il migliore per un brand sostenibile.</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">ToT con dati quantitativi. Il modello confronta trade-off tra budget, reach e targeting.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">23</span><span class="card-level level-adv">Avanzato</span></div>
+              <div class="ex-title">Verifica a campione</div>
+              <div class="ex-desc">Genera 3 risposte indipendenti e confrontale per trovare la verità.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Genera 3 risposte indipendenti a questa domanda. Alla fine confrontale e indica la risposta più affidabile.<br><br>"Qual è la capitale del Burkina Faso? Rispondi solo se sei sicuro al 100%."</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Self-Consistency: 3 risposte identiche = alta affidabilità. Se divergono, serve verifica umana.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">24</span><span class="card-level level-adv">Avanzato</span></div>
+              <div class="ex-title">Calcolo con voting</div>
+              <div class="ex-desc">Risolvi un problema finanziario con 3 tentativi indipendenti, poi vota.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Risolvi questo problema in 3 modi indipendenti, poi confronta i risultati e scegli quello più ricorrente:<br><br>"Se investo 5000€ con un rendimento annuo del 7% per 5 anni, qual è il valore finale (interesse composto)?"</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Self-Consistency per calcoli: se tutte le risposte coincidono, il risultato è affidabile.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">25</span><span class="card-level level-adv">Avanzato</span></div>
+              <div class="ex-title">Agente di ricerca</div>
+              <div class="ex-desc">Simula un agente ReAct che cerca informazioni e formula una risposta.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Usa il formato ReAct (Pensiero → Azione → Osservazione → Risposta Finale):<br><br>"Chi ha vinto il premio Nobel per la Fisica nel 2022 e per quale scoperta?"<br><br>Pensiero: Devo ricordare il Nobel per la Fisica 2022...<br>Azione: [cerca in memoria]</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">ReAct struttura il ragionamento in passaggi: pensa, agisci, osserva. Base per agenti AI autonomi.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">26</span><span class="card-level level-adv">Avanzato</span></div>
+              <div class="ex-title">Troubleshooting cliente</div>
+              <div class="ex-desc">Simula un agente di supporto che diagnostica un problema cliente.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Sei un agente di supporto tecnico. Usa il formato ReAct per risolvere questo problema:<br><br>"Il mio computer non si accende. Quando premo il pulsante, sento solo un click."<br><br>Pensiero: [cosa potrebbe essere?]<br>Azione: [cosa controllare?]<br>Osservazione: [risultato del controllo]</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">ReAct applicato a troubleshooting: il modello pensa ad alta voce, identifica cause e propone soluzioni.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">27</span><span class="card-level level-adv">Avanzato</span></div>
+              <div class="ex-title">Miglioramento iterativo</div>
+              <div class="ex-desc">Scrivi, critica e riscrivi in 3 iterazioni (Self-Refinement).</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Iterazione 1: "Scrivi una descrizione per un nuovo smartphone, 50 parole."<br><br>Iterazione 2: "Critica la descrizione precedente: cosa manca? Cosa si può migliorare?"<br><br>Iterazione 3: "Riscrivi la descrizione incorporando i miglioramenti suggeriti."</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Self-Refinement: ogni iterazione migliora la qualità. Utile per testi importanti (email, copy, articoli).</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">28</span><span class="card-level level-adv">Avanzato</span></div>
+              <div class="ex-title">Riscrittura critica</div>
+              <div class="ex-desc">Genera un testo, autocriticalo e riscrivilo in forma migliorata.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">1. "Scrivi un paragrafo di 3 righe che spiega l'impatto dell'AI sul lavoro."<br><br>2. "Ora critica il paragrafo: identifica 2 debolezze e 1 informazione mancante."<br><br>3. "Riscrivilo incorporando le correzioni identificate."</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Self-Refinement: il modello valuta il proprio output come un revisore esterno e lo migliora.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">29</span><span class="card-level level-adv">Avanzato</span></div>
+              <div class="ex-title">SEO con voting</div>
+              <div class="ex-desc">Combina ToT per strategia e Self-Consistency per scegliere il titolo migliore.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Strategia A: "Titoli con numeri (es. '10 modi per...')"<br>Strategia B: "Titoli domanda (es. 'Sai davvero...?')"<br>Strategia C: "Titoli how-to (es. 'Come fare...')"<br><br>Per ogni strategia genera 2 titoli per un articolo sulla produttività.<br>Poi confronta tutti e 6 e scegli il migliore.</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">ToT esplora strategie, Self-Consistency confronta output multipli. Combinazione potente.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">30</span><span class="card-level level-adv">Avanzato</span></div>
+              <div class="ex-title">Audit di sicurezza</div>
+              <div class="ex-desc">ReAct + Self-Refinement per un report di audit iterativo.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">1. ReAct: "Simula un agente di cybersecurity che fa audit su un'applicazione web. Pensa, agisci, osserva."<br><br>2. Self-Refinement: "Ora critica il report di audit generato. Manca qualcosa? Aggiungi 2 vulnerabilità comuni non menzionate."<br><br>3. "Genera la versione finale migliorata del report."</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Due tecniche combinate: ReAct per l'esplorazione sistematica, Self-Refinement per la qualità finale.</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ESPERTO -->
+        <div class="section" style="margin-bottom:0">
+          <div class="section-header" style="margin-bottom:14px">
+            <div class="section-icon" style="background:rgba(99,102,241,0.12);width:28px;height:28px;font-size:14px">💎</div>
+            <div>
+              <h2 style="font-size:15px">Esperto</h2>
+              <p style="font-size:11px">Meta-Prompting, Prompt Chaining, Expert Panel, combinatoria</p>
+            </div>
+          </div>
+          <div class="cards-grid-2">
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">31</span><span class="card-level level-exp">Esperto</span></div>
+              <div class="ex-title">Sistema di valutazione</div>
+              <div class="ex-desc">Crea un sistema che valuta la qualità di un prompt con criteri e punteggi.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Sei un esperto di prompt engineering. Crea un sistema di valutazione prompt con:<br>1. 5 criteri di valutazione (es. chiarezza, specificità, ecc.)<br>2. Per ogni criterio, peso percentuale e descrizione<br>3. Una scala 1-10 per ogni criterio<br><br>Poi usa questo sistema per valutare questo prompt:<br>"Scrivi un testo sul cambiamento climatico."</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Meta-Prompting: il modello crea uno strumento (sistema di valutazione) che può poi applicare autonomamente.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">32</span><span class="card-level level-exp">Esperto</span></div>
+              <div class="ex-title">Generatore di template</div>
+              <div class="ex-desc">Chiedi al modello di creare template riutilizzabili per diversi scenari.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Genera 3 template di prompt riutilizzabili per:<br><br>1. Analisi dati: input = dataset, output = insight<br>2. Copywriting: input = prodotto, output = copy<br>3. Supporto clienti: input = problema, output = soluzione<br><br>Ogni template deve avere: ruolo, contesto (con placeholder [variabile]), istruzioni e formato output.</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Meta-Prompting: il modello progetta template che un umano (o un sistema) potrà riusare.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">33</span><span class="card-level level-exp">Esperto</span></div>
+              <div class="ex-title">Catena analisi-sintesi</div>
+              <div class="ex-desc">Pipeline sequenziale: analizza, sintetizza, traduci.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Step 1: "Analizza questo testo e identifica i 3 concetti principali:"<br>"Il quantum computing sfrutta i principi della meccanica quantistica per elaborare informazioni in modo radicalmente diverso dai computer classici, promettendo svolte in crittografia e farmaceutica."<br><br>Step 2 (usa l'output dello Step 1): "Sintetizza i 3 concetti in un'unica frase chiara."<br><br>Step 3 (usa l'output dello Step 2): "Traduci la frase in inglese."</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Prompt Chaining: ogni passo usa l'output del precedente. Ideale per task multi-step complessi.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">34</span><span class="card-level level-exp">Esperto</span></div>
+              <div class="ex-title">Pipeline di scrittura</div>
+              <div class="ex-desc">Catena di 4 step per scrivere un articolo completo.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Step 1: "Fai una ricerca su 3 punti chiave riguardo i benefici della lettura quotidiana."<br><br>Step 2: "Struttura un articolo con: introduzione, 3 paragrafi (uno per punto chiave), conclusione."<br><br>Step 3: "Scrivi l'introduzione e il primo paragrafo in modo coinvolgente."<br><br>Step 4: "Scrivi i restanti 2 paragrafi e la conclusione, mantenendo lo stesso stile."</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Prompt Chaining per scrittura: spezzare la scrittura in fasi migliora coerenza e qualità dell'articolo finale.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">35</span><span class="card-level level-exp">Esperto</span></div>
+              <div class="ex-title">Panel di esperti</div>
+              <div class="ex-desc">Simula 3 esperti con prospettive opposte che dibattono un tema.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Simula un panel di 3 esperti che discutono l'impatto dell'intelligenza artificiale sul lavoro:<br><br>Esperto A (ottimista): "L'AI creerà più posti di quanti ne distruggerà..."<br>Esperto B (critico): "L'AI causerà disoccupazione di massa..."<br>Esperto C (pragmatico): "Dipende da come governiamo la transizione..."<br><br>Ogni esperto deve portare 2 argomenti. Poi fornisci una sintesi delle posizioni.</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Expert Panel: il modello esplora prospettive multiple, producendo un'analisi ricca e bilanciata.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">36</span><span class="card-level level-exp">Esperto</span></div>
+              <div class="ex-title">Dibattito nucleare</div>
+              <div class="ex-desc">Simula un dibattito tra due posizioni opposte e sintetizza.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Simula un dibattito tra un sostenitore e un critico dell'energia nucleare:<br><br>Sostenitore: presenta 3 argomenti a favore (sicurezza, efficienza, ambiente)<br>Critico: risponde a ciascun argomento con contro-argomentazioni<br>Sostenitore: replica<br>Critico: contro-replica<br><br>Concludi con una sintesi neutrale di 3 righe che riassume le posizioni.</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Expert Panel avanzato: il modello alterna ruoli in un dialogo strutturato, producendo analisi approfondita.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">37</span><span class="card-level level-exp">Esperto</span></div>
+              <div class="ex-title">Analista finanziario</div>
+              <div class="ex-desc">Combina Role + CoT + JSON in un unico prompt potente.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Sei un analista finanziario con 20 anni di esperienza. Ragiona passo per passo.<br><br>"Un'azienda ha ricavi di 10M, costi di 7M, debiti per 5M e liquidità per 2M. Opera in un mercato in crescita del 12% annuo."<br><br>Rispondi SOLO con JSON valido:<br>{<br>  "analisi": "...",<br>  "rischio": "basso/medio/alto",<br>  "raccomandazione": "...",<br>  "metriche_chiave": { ... }<br>}</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Tre tecniche in una: Role (autorità), CoT (ragionamento), Structured Output (formato). Massima potenza.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">38</span><span class="card-level level-exp">Esperto</span></div>
+              <div class="ex-title">Analisi in batch</div>
+              <div class="ex-desc">Few-Shot con output JSON per analisi strutturate ripetibili.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Esempio 1 — Input: "iPhone 16, 999€, schermo 6.1 pollici, fotocamera 48MP" → {"prodotto": "iPhone 16", "prezzo": 999, "specifiche": {"schermo": "6.1 pollici", "fotocamera": "48MP"}}<br><br>Esempio 2 — Input: "Samsung Galaxy S25, 899€, schermo 6.8 pollici, batteria 5000mAh" → {"prodotto": "Samsung Galaxy S25", "prezzo": 899, "specifiche": {"schermo": "6.8 pollici", "batteria": "5000mAh"}}<br><br>Input: "Pixel 10, 799€, schermo 6.3 pollici, fotocamera 50MP, ricarica wireless"<br>Rispondi SOLO con JSON.</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Few-Shot + Structured Output: il modello impara lo schema JSON dagli esempi e lo applica a nuovi dati.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">39</span><span class="card-level level-exp">Esperto</span></div>
+              <div class="ex-title">Super-prompt integrato</div>
+              <div class="ex-desc">Role + CoT + Self-Refinement + JSON in sequenza automatica.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Sei un revisore editoriale senior.<br><br>1. Analizza questo testo e identifica problemi di chiarezza, struttura e tono (ragiona passo per passo):<br>"La nostra azienda fa cose molto interessanti nel campo della tecnologia. Abbiamo un team che lavora tanto e produce risultati. Siamo molto contenti di come stanno andando le cose."<br><br>2. Ora critica la tua stessa analisi: c'è qualcosa che hai trascurato?<br><br>3. Rispondi SOLO con JSON:<br>{<br>  "problemi": ["...", "..."],<br>  "critiche_analisi": ["..."],<br>  "testo_migliorato": "..."<br>}</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">4 tecniche in un unico flusso: Role + CoT + Self-Refinement + Structured Output. Il massimo del controllo.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ex-card" onclick="toggleEx(this)">
+              <div class="ex-top"><span class="ex-num">40</span><span class="card-level level-exp">Esperto</span></div>
+              <div class="ex-title">Meta-generatore + pipeline</div>
+              <div class="ex-desc">Genera un prompt che genera prompt, poi esegui la pipeline automatica.</div>
+              <div class="ex-hint">💡 Clicca per il prompt</div>
+              <div class="ex-details">
+                <div class="ex-details-inner">
+                  <div class="ex-label">Prompt da provare</div>
+                  <div class="example-box">Fase 1 (Meta-Prompting): "Genera un prompt template che un imprenditore può usare per ottenere un'analisi SWOT della propria azienda. Il template deve includere ruolo, contesto (con placeholder), istruzioni passo passo e formato tabella."<br><br>Fase 2 (Esecuzione): "Ora usa il template che hai generato. Compila i placeholder con: azienda = 'Pizzeria Da Mario', mercato = 'ristorazione Napoli', competitor = 'altre pizzerie locali'."</div>
+                  <div class="ex-label">Obiettivo</div>
+                  <div class="ex-answer">Meta-Prompting + Chaining: prima crea lo strumento, poi usalo. Automazione completa del workflow.</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== ESAME ===== -->
+    <section class="page-section" id="section-esame">
+      <div class="section">
+        <div class="section-header">
+          <div class="section-icon" style="background:rgba(245,158,11,0.15)">🎯</div>
+          <div>
+            <h2>Esercitazione Interattiva</h2>
+            <p>Scrivi un prompt per il livello corrente e ricevi una valutazione con stelle e voto</p>
+          </div>
+        </div>
+
+        <div class="exam-lvl-bar" id="exam-lvl-bar">
+          <div class="exam-lvl-step active" data-lvl="0" onclick="examGoTo(0)">
+            <span class="step-icon">⚡</span>
+            <span class="step-label">Base</span>
+          </div>
+          <div class="exam-lvl-step" data-lvl="1" onclick="examGoTo(1)">
+            <span class="step-icon">🔥</span>
+            <span class="step-label">Intermedio</span>
+          </div>
+          <div class="exam-lvl-step" data-lvl="2" onclick="examGoTo(2)">
+            <span class="step-icon">🚀</span>
+            <span class="step-label">Avanzato</span>
+          </div>
+          <div class="exam-lvl-step" data-lvl="3" onclick="examGoTo(3)">
+            <span class="step-icon">💎</span>
+            <span class="step-label">Esperto</span>
+          </div>
+        </div>
+
+        <div class="exam-progress-wrap">
+          <div class="exam-progress-label">
+            <span id="exam-prog-text">Progresso: Base</span>
+            <span id="exam-prog-pct">0%</span>
+          </div>
+          <div class="exam-progress-bar">
+            <div class="exam-progress-fill" id="exam-prog-fill"></div>
+          </div>
+        </div>
+
+        <div class="exam-main">
+
+          <!-- LEFT PANEL: Theory + Checklist -->
+          <div class="exam-panel" id="exam-panel-left">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+              <span style="font-size:24px" id="exam-lvl-icon">⚡</span>
+              <div>
+                <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px" id="exam-lvl-name">Base</div>
+                <div style="font-size:11px;color:var(--text-muted)" id="exam-lvl-sub">Fondamenti di prompting</div>
+              </div>
+            </div>
+
+            <div class="exam-theory" id="exam-theory">
+              <strong>Obiettivo:</strong> Scrivi un prompt che assegni un ruolo al modello, specifichi un task chiaro e definisca il formato dell'output desiderato. Usa un linguaggio preciso e contesto sufficiente.
+            </div>
+
+            <div class="exam-checklist" id="exam-checklist">
+              <div class="exam-check-item"><span class="check-icon">⬜</span> Specifica un <strong>ruolo</strong> (es. "Sei un esperto di...")</div>
+              <div class="exam-check-item"><span class="check-icon">⬜</span> Descrivi il <strong>compito</strong> in modo chiaro</div>
+              <div class="exam-check-item"><span class="check-icon">⬜</span> Fornisci <strong>contesto</strong> o background</div>
+              <div class="exam-check-item"><span class="check-icon">⬜</span> Indica il <strong>formato</strong> di output</div>
+              <div class="exam-check-item"><span class="check-icon">⬜</span> Sii <strong>specifico</strong> e non vago</div>
+            </div>
+
+            <div class="exam-next-lvl" id="exam-next-lvl">
+              <p>🎉 Livello superato! Passa all'Intermediate</p>
+              <button class="btn btn-primary" style="margin-top:10px" onclick="examGoTo(1)">Continua →</button>
+            </div>
+          </div>
+
+          <!-- RIGHT PANEL: Editor + Result -->
+          <div class="exam-panel" id="exam-panel-right">
+            <div style="font-size:13px;font-weight:600;margin-bottom:10px">✍️ Scrivi il tuo prompt</div>
+            <textarea class="exam-textarea" id="exam-input" placeholder="Esempio: Sei un esperto di marketing digitale. Scrivi un post LinkedIn di 150 parole sul tema X, tono professionale, per imprenditori under 40." oninput="examClearResult()"></textarea>
+            <div class="exam-btn-row">
+              <button class="btn btn-primary" onclick="examEvaluate()">⭐ Valuta</button>
+              <button class="btn btn-secondary" onclick="examReset()">🔄 Reset</button>
+            </div>
+
+            <div class="exam-result" id="exam-result">
+              <div class="exam-stars" id="exam-stars">☆☆☆☆☆</div>
+              <div>
+                <span class="exam-score" id="exam-score">0</span>
+                <span class="exam-score-label">/10</span>
+              </div>
+              <div class="exam-feedback" id="exam-feedback"></div>
+              <button class="btn btn-secondary exam-regen" onclick="examRegen()">🔄 Riprova con un suggerimento</button>
+            </div>
+
+            <div class="exam-empty" id="exam-empty">
+              <div class="empty-icon">✍️</div>
+              <div>Scrivi un prompt e clicca <strong>Valuta</strong> per ricevere il tuo punteggio</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <script>
+      // ===== ESAME STATE =====
+      let examState = {
+        currentLvl: 0,
+        unlockedLvl: 0,
+        scores: [null, null, null, null],
+        attempts: 0
+      };
+
+      const examLevels = [
+        {
+          name: 'Base', icon: '⚡', sub: 'Fondamenti di prompting',
+          theory: '<strong>Obiettivo:</strong> Scrivi un prompt che assegni un ruolo al modello, specifichi un task chiaro e definisca il formato dell\'output desiderato. Usa un linguaggio preciso e contesto sufficiente.',
+          checks: [
+            'Specifica un <strong>ruolo</strong> (es. "Sei un esperto di...")',
+            'Descrivi il <strong>compito</strong> in modo chiaro',
+            'Fornisci <strong>contesto</strong> o background',
+            'Indica il <strong>formato</strong> di output',
+            'Sii <strong>specifico</strong> e non vago'
+          ],
+          checkWords: [
+            ['ruolo', 'esperto', 'sei un', 'persona', 'specialista', 'professionista', 'agisci come', 'consulente', 'analista', 'insegnante', 'assistente', 'specialized in'],
+            ['compito', 'task', 'scrivi', 'traduci', 'analizza', 'classifica', 'elenca', 'genera', 'riassumi', 'spiega', 'crea', 'progetta', 'proponi', 'descrivi', 'produce'],
+            ['contesto', 'background', 'situazione', 'azienda', 'settore', 'ambito', 'tema', 'argomento', 'input', 'dati', 'informazioni', 'riferimento', 'scenario'],
+            ['formato', 'output', 'json', 'xml', 'tabella', 'bullet', 'elenco', 'markdown', 'csv', 'struttura', 'schema'],
+            ['specifico', 'preciso', 'dettagliato', 'vincol', 'limite', 'lunghezza', 'massimo', 'minimo', 'tono', 'chiaro', 'esatto', 'numero']
+          ],
+          checkTips: [
+            'Aggiungi un <strong>ruolo</strong> all\'inizio, tipo <em>"Sei un esperto di marketing digitale"</em> — orienta tutto il tono della risposta.',
+            'Specifica un <strong>compito chiaro</strong> con un verbo d\'azione: <em>"Scrivi", "Analizza", "Traduci", "Classifica"</em>.',
+            'Dai <strong>contesto</strong>: a chi si rivolge, qual è lo scenario, perché serve. Es: <em>"per un pubblico di neolaureati"</em>.',
+            'Dichiara il <strong>formato dell\'output</strong>: <em>"Rispondi in JSON", "Usa bullet points", "Tabella Markdown"</em>.',
+            'Sii <strong>specifico</strong>: lunghezza, tono, esempi. Invece di "Scrivi un testo", scrivi <em>"Scrivi un post da 150 parole, tono informale"</em>.'
+          ]
+        },
+        {
+          name: 'Intermedio', icon: '🔥', sub: 'Ragionamento e struttura',
+          theory: '<strong>Obiettivo:</strong> Scrivi un prompt che richieda ragionamento esplicito (CoT), usi delimitatori, specifichi vincoli precisi e istruzioni strutturate. Il formato dell\'output deve essere ben definito.',
+          checks: [
+            'Richiede ragionamento <strong>passo per passo</strong>',
+            'Usa <strong>delimitatori</strong> (""", ###, ---) per separare sezioni',
+            'Include <strong>vincoli</strong> precisi (lunghezza, tono, esclusioni)',
+            'Specifica il <strong>formato</strong> di output (JSON, tabella, ecc.)',
+            'Struttura il prompt in <strong>sezioni</strong> ordinate'
+          ],
+          checkWords: [
+            ['passo per passo', 'step by step', 'ragiona', 'coerente', 'spiegando', 'motivando', 'dimostrando', 'calcola', 'procedi', 'sequenza', 'fasi'],
+            ['"""', '###', '---', '===', '>>>', '<<<', '<context>', '<task>', 'delimitat'],
+            ['vincol', 'limite', 'massimo', 'minimo', 'lunghezza', 'tono', 'evita', 'non usare', 'deve', 'obbligatoriamente', 'solo', 'esattamente'],
+            ['json', 'xml', 'tabella', 'markdown', 'csv', 'formato', 'struttura', 'schema', 'elenco', 'bullet', 'numerato'],
+            ['sezione', 'passo', 'step', 'fase', 'parte', 'sequenza', 'prima', 'poi', 'successivamente', 'infine']
+          ],
+          checkTips: [
+            'Aggiungi <strong>"ragiona passo per passo"</strong> per attivare il Chain of Thought — fondamentale per problemi logici.',
+            'Usa <strong>delimitatori</strong> come ### o """ per separare contesto, istruzioni e dati. Aiuta il modello a non confondersi.',
+            'Imponi <strong>vincoli precisi</strong>: <em>"massimo 200 parole", "tono formale", "non usare gergo tecnico"</em>.',
+            'Specifica il <strong>formato esatto</strong>: <em>"Rispondi SOLO con JSON valido", "in tabella Markdown"</em>.',
+            'Organizza il prompt in <strong>sezioni logiche</strong>: CONTESTO, COMPITO, FORMATO, VINCOLI, OUTPUT.'
+          ]
+        },
+        {
+          name: 'Avanzato', icon: '🚀', sub: 'ToT, Self-Consistency, ReAct, Self-Refinement',
+          theory: '<strong>Obiettivo:</strong> Scrivi un prompt che esplori percorsi multipli (ToT), preveda autocritica (Self-Refinement), usi voting (Self-Consistency) o simuli un agente (ReAct). Deve gestire complessità e incertezza.',
+          checks: [
+            'Esplora <strong>approcci multipli</strong> o percorsi alternativi',
+            'Prevede <strong>autocritica</strong> o iterazioni di miglioramento',
+            'Usa <strong>voting/confronto</strong> tra risposte multiple',
+            'Simula un <strong>agente</strong> con pensiero-azione-osservazione',
+            'Struttura <strong>valutazione</strong> esplicita delle opzioni'
+          ],
+          checkWords: [
+            ['approccio', 'percorso', 'alternativ', 'opzione', 'ramo', 'branch', 'esplora', 'confront', 'strategia', 'possibilità', 'candidato'],
+            ['critica', 'migliora', 'revisiona', 'itera', 'raffina', 'autocritica', 'riesamina', 'valuta', 'feedback', 'rivedi', 'ottimizza'],
+            ['vota', 'voting', 'confronta', 'maggioranza', 'frequente', 'consenso', 'multiple risposte', 'indipendenti', 'coerenza', 'consistency'],
+            ['pensiero', 'azione', 'osservazione', 'react', 'agente', 'simula', 'strumenti', 'tool', 'search', 'agisci', 'loop'],
+            ['valuta', 'valutazione', 'scegli', 'seleziona', 'migliore', 'ottimale', 'confronto', 'peso', 'criterio', 'punteggio']
+          ],
+          checkTips: [
+            'Esplora <strong>approcci multipli</strong>: <em>"Valuta 3 strategie diverse: A, B, C. Per ciascuna analizza pro e contro."</em>',
+            'Introduci <strong>autocritica</strong>: <em>"Genera una bozza, poi criticala, poi riscrivila migliorata."</em> — Self-Refinement.',
+            'Usa il <strong>voting</strong>: <em>"Genera 3 risposte indipendenti, poi confrontale e scegli la più ricorrente."</em>',
+            'Struttura con il <strong>loop ReAct</strong>: <em>"Pensiero: ... Azione: ... Osservazione: ... Risposta Finale: ..."</em>',
+            'Richiedi una <strong>valutazione esplicita</strong> delle opzioni: <em>"Assegna un punteggio 1-10 a ciascuna opzione e motiva."</em>'
+          ]
+        },
+        {
+          name: 'Esperto', icon: '💎', sub: 'Meta-prompting, chaining, combinazioni',
+          theory: '<strong>Obiettivo:</strong> Scrivi un prompt che combini più tecniche avanzate, usi pipeline multi-step, crei template, simuli panel di esperti o sistemi di valutazione. Deve dimostrare padronanza completa.',
+          checks: [
+            '<strong>Combina</strong> più tecniche (Role + CoT + JSON, ecc.)',
+            'Crea una <strong>pipeline</strong> o catena di prompt',
+            'Genera <strong>template</strong> o sistemi riutilizzabili',
+            'Simula <strong>panel di esperti</strong> o dibattiti',
+            'Usa <strong>meta-livello</strong> (prompt che genera prompt)'
+          ],
+          checkWords: [
+            ['combina', 'insieme', 'integr', 'multipl', 'contemporaneamente', 'sia...sia', 'non solo', 'anche', 'role', 'cot', 'json'],
+            ['pipeline', 'catena', 'sequenza', 'step', 'fase', 'passaggio', 'dopo', 'successivamente', 'quindi', 'poi', 'collega', 'catena di'],
+            ['template', 'modello', 'schema', 'riutilizz', 'generale', 'placeholder', 'parametro', 'variabile', 'framework', 'struttura'],
+            ['panel', 'espert', 'dibattito', 'prospettiv', 'punto di vista', 'opinione', 'confront', 'simula', 'discutono', 'posizione'],
+            ['meta', 'genera', 'sistema', 'valutazione', 'criteri', 'automatizza', 'workflow', 'completo']
+          ],
+          checkTips: [
+            'Combina <strong>più tecniche</strong>: <em>"Sei un analista (Role). Ragiona passo passo (CoT). Rispondi in JSON (formato)."</em>',
+            'Struttura una <strong>pipeline</strong>: <em>"Step 1: Analizza... Step 2: Sintetizza... Step 3: Formatta..."</em>',
+            'Genera <strong>template riutilizzabili</strong>: <em>"Crea un template per [scenario] con placeholder per [variabili]."</em>',
+            'Simula un <strong>panel di esperti</strong>: <em>"Simula 3 esperti con prospettive diverse che dibattono [tema]."</em>',
+            'Usa un <strong>meta-livello</strong>: chiedi al modello di creare un sistema che valuta o genera altri prompt.'
+          ]
+        }
+      ];
+
+      function examGoTo(lvl) {
+        if (lvl > examState.unlockedLvl) return;
+        examState.currentLvl = lvl;
+        examRenderLevel(lvl);
+      }
+
+      function examRenderLevel(lvl) {
+        const L = examLevels[lvl];
+        const steps = document.querySelectorAll('.exam-lvl-step');
+        steps.forEach((s, i) => {
+          s.classList.remove('active', 'done');
+          if (i < examState.unlockedLvl) s.classList.add('done');
+          if (i === lvl) s.classList.add('active');
+        });
+
+        document.getElementById('exam-lvl-icon').textContent = L.icon;
+        document.getElementById('exam-lvl-name').textContent = L.name;
+        document.getElementById('exam-lvl-sub').textContent = L.sub;
+        document.getElementById('exam-theory').innerHTML = L.theory;
+
+        const cl = document.getElementById('exam-checklist');
+        cl.innerHTML = L.checks.map(c =>
+          `<div class="exam-check-item"><span class="check-icon">⬜</span> ${c}</div>`
+        ).join('');
+
+        const pct = Math.round((examState.unlockedLvl / 3) * 100);
+        document.getElementById('exam-prog-text').textContent = `Progresso: ${L.name}`;
+        document.getElementById('exam-prog-pct').textContent = `${pct}%`;
+        document.getElementById('exam-prog-fill').style.width = `${pct}%`;
+
+        document.getElementById('exam-next-lvl').classList.remove('show');
+
+        const lvlScore = examState.scores[lvl];
+        const isUnlocked = lvl <= examState.unlockedLvl;
+        document.getElementById('exam-input').disabled = !isUnlocked;
+        document.getElementById('exam-input').placeholder = isUnlocked
+          ? 'Scrivi il tuo prompt per il livello ' + L.name + '...'
+          : 'Completa il livello precedente per sbloccare questo.';
+        const emptyEl = document.getElementById('exam-empty');
+        const resultEl = document.getElementById('exam-result');
+        if (lvlScore !== null) {
+          examShowResult(lvlScore.score, lvlScore.details, lvlScore.suggestions || [], lvl);
+        } else {
+          resultEl.classList.remove('show');
+          emptyEl.style.display = 'block';
+        }
+      }
+
+      function examEvaluate() {
+        const input = document.getElementById('exam-input').value.trim();
+        const lvl = examState.currentLvl;
+        if (!input) return;
+
+        examState.attempts++;
+
+        const L = examLevels[lvl];
+        const words = L.checkWords;
+        const checks = L.checks;
+        const tips = L.checkTips;
+        const lower = input.toLowerCase();
+
+        let points = 0;
+        let details = [];
+        let suggestions = [];
+        let foundCount = 0;
+
+        words.forEach((wordSet, idx) => {
+          let found = false;
+          for (const w of wordSet) {
+            if (lower.includes(w)) {
+              found = true;
+              break;
+            }
+          }
+          if (found) {
+            points += 2;
+            foundCount++;
+            details.push(`✅ <strong>${checks[idx].replace(/<[^>]*>/g, '')}</strong>`);
+          } else {
+            details.push(`❌ <strong>${checks[idx].replace(/<[^>]*>/g, '')}</strong>`);
+            suggestions.push(tips[idx]);
+          }
+        });
+
+        // Bonus lunghezza
+        const wordCount = input.split(/\s+/).length;
+        if (wordCount >= 30) points = Math.min(points + 1, 10);
+        if (wordCount >= 60) points = Math.min(points + 1, 10);
+
+        const score = Math.max(0, Math.min(10, Math.round(points)));
+        examState.scores[lvl] = { score, details, suggestions };
+        examShowResult(score, details, suggestions, lvl);
+
+        if (score >= 6 && lvl === examState.unlockedLvl && lvl < 3) {
+          examState.unlockedLvl = lvl + 1;
+          document.getElementById('exam-next-lvl').classList.add('show');
+          document.getElementById('exam-next-lvl').querySelector('p').textContent =
+            `🎉 Ottimo lavoro! Hai ottenuto ${score}/10 e superato il livello ${L.name}!`;
+          setTimeout(() => examRenderLevel(lvl), 100);
+        }
+      }
+
+      function examShowResult(score, details, suggestions, lvl) {
+        const L = examLevels[lvl];
+        const stars = '★'.repeat(Math.round(score / 2)) + '☆'.repeat(5 - Math.round(score / 2));
+        document.getElementById('exam-stars').textContent = stars;
+        document.getElementById('exam-score').textContent = score;
+        document.getElementById('exam-result').classList.add('show');
+        document.getElementById('exam-empty').style.display = 'none';
+
+        let color = score < 4 ? 'var(--accent6)' : score < 7 ? 'var(--accent4)' : 'var(--accent5)';
+        document.getElementById('exam-score').style.webkitTextFillColor = 'unset';
+        document.getElementById('exam-score').style.color = color;
+
+        // Build feedback: first show what was found/missing
+        let fb = '<div style="margin-bottom:12px"><strong>Dettaglio valutazione:</strong></div>';
+        fb += details.slice(0, 5).map(d => '<div style="margin-bottom:4px">• ' + d + '</div>').join('');
+
+        // Then show suggestions for missing items
+        if (suggestions.length > 0) {
+          fb += '<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--glass-border)">';
+          fb += '<strong>💡 Come migliorarlo:</strong>';
+          suggestions.slice(0, 3).forEach(s => {
+            fb += '<div style="margin-top:6px;font-size:12.5px;padding:8px 10px;background:rgba(245,158,11,0.08);border-radius:6px;border-left:3px solid var(--accent4)">→ ' + s + '</div>';
+          });
+          if (suggestions.length > 3) {
+            fb += '<div style="margin-top:6px;font-size:12px;color:var(--text-muted)">⚠️ ' + (suggestions.length - 3) + ' altri criteri da migliorare — rivedi la checklist qui accanto.</div>';
+          }
+          fb += '</div>';
+        }
+
+        if (score >= 9) fb += '<div style="margin-top:14px;padding:10px 14px;background:rgba(16,185,129,0.1);border-radius:8px;border-left:3px solid var(--accent5);font-size:13px">💪 <strong>Eccellente!</strong> Prompt completo e ben strutturato per questo livello. Passa al prossimo!</div>';
+        else if (score >= 7) fb += '<div style="margin-top:14px;padding:10px 14px;background:rgba(245,158,11,0.08);border-radius:8px;border-left:3px solid var(--accent4);font-size:13px">👍 <strong>Buon lavoro!</strong> Sei sulla strada giusta. Applica i suggerimenti sopra per rendere il prompt ancora più solido.</div>';
+        else if (score >= 5) fb += '<div style="margin-top:14px;padding:10px 14px;background:rgba(245,158,11,0.06);border-radius:8px;border-left:3px solid var(--accent4);font-size:13px">📝 <strong>Discreto.</strong> Hai le idee base ma mancano elementi chiave. Segui i suggerimenti e riprova.</div>';
+        else fb += '<div style="margin-top:14px;padding:10px 14px;background:rgba(244,63,94,0.08);border-radius:8px;border-left:3px solid var(--accent6);font-size:13px">🔍 <strong>Da rivedere.</strong> Rileggi la checklist qui accanto e assicurati di includere ogni elemento elencato. Riprova!</div>';
+
+        document.getElementById('exam-feedback').innerHTML = fb;
+
+        const pct = Math.round((examState.unlockedLvl / 3) * 100);
+        document.getElementById('exam-prog-pct').textContent = `${pct}%`;
+        document.getElementById('exam-prog-fill').style.width = `${pct}%`;
+      }
+
+      function examRegen() {
+        const lvl = examState.currentLvl;
+        const tips = [
+          // Base
+          [ 'Prova con: "Sei un esperto di [ruolo]. Scrivi [compito] per [pubblico]. Usa tono [aggettivo], formato [formato scelto], lunghezza [numero] [unità]."',
+            'Prova con: "Sei un consulente finanziario. Spiega in modo semplice cos\'è un fondo pensione a un neolaureato. Massimo 100 parole, tono rassicurante."',
+            'Prova con: "Classifica il sentiment delle seguenti recensioni come Positivo, Negativo o Neutro. Restituisci una tabella Markdown."' ],
+          // Intermedio
+          [ 'Prova con: "Ragiona passo per passo: [problema logico]. Mostra tutti i calcoli intermedi e poi la risposta finale."',
+            'Prova con: "### CONTESTO ### [contesto] ### COMPITO ### [task] ### FORMATO ### JSON { ... } ### VINCOLI ### [vincoli]"',
+            'Prova con: "Analizza questa situazione. Usa il formato: 1. Identifica il problema, 2. Elenca le cause, 3. Proponi 3 soluzioni. Per ogni soluzione indica pro e contro."' ],
+          // Avanzato
+          [ 'Prova con: "Esplora 3 approcci per [problema]. Per ciascuno: vantaggi, svantaggi, fattibilità. Poi scegli il migliore con motivazione."',
+            'Prova con: "Iterazione 1: [scrivi]. Iterazione 2: critica. Iterazione 3: riscrivi migliorato. Alla fine confronta."',
+            'Prova con: "Pensiero: [cosa serve fare] Azione: [cosa fai] Osservazione: [cosa ottieni] Risposta: [conclusione]"' ],
+          // Esperto
+          [ 'Prova con: "Combina Role + CoT + JSON. Sei [ruolo]. Ragiona passo passo. Rispondi in JSON con campi: analisi, rischio, raccomandazione."',
+            'Prova con: "Crea 3 template di prompt per [scenario1, scenario2, scenario3]. Ogni template deve avere ruolo, contesto (con placeholder), istruzioni e formato."',
+            'Prova con: "Pipeline in 3 step. Step 1: Analizza [dati]. Step 2: Sintetizza i punti chiave. Step 3: Traduci in inglese e formatta come tabella."' ]
+        ];
+        const lvlTips = tips[lvl] || tips[0];
+        const tip = lvlTips[Math.floor(Math.random() * lvlTips.length)];
+        document.getElementById('exam-input').value = '';
+        document.getElementById('exam-input').placeholder = '💡 ' + tip;
+        document.getElementById('exam-result').classList.remove('show');
+        document.getElementById('exam-empty').style.display = 'block';
+      }
+
+      function examReset() {
+        examState = { currentLvl: 0, unlockedLvl: 0, scores: [null, null, null, null], attempts: 0 };
+        document.getElementById('exam-input').value = '';
+        document.getElementById('exam-input').disabled = false;
+        document.getElementById('exam-result').classList.remove('show');
+        document.getElementById('exam-empty').style.display = 'block';
+        examRenderLevel(0);
+      }
+
+      function examClearResult() {
+        document.getElementById('exam-result').classList.remove('show');
+        document.getElementById('exam-empty').style.display = 'block';
+      }
+
+      // Init
+      document.addEventListener('DOMContentLoaded', () => {
+        examRenderLevel(0);
+      });
+    </script>
+
+    <!-- ===== TIPS ===== -->
+    <section class="page-section" id="section-tips">
+      <div class="section">
+        <div class="section-header">
+          <div class="section-icon" style="background:rgba(99,102,241,0.15)">💡</div>
+          <div>
+            <h2>Best Practice & Tips</h2>
+            <p>Regole d'oro per prompt che funzionano sempre</p>
+          </div>
+        </div>
+        <div class="tips-list">
+          <div class="tip-item t1">
+            <div class="tip-icon">🎯</div>
+            <div>
+              <div class="tip-title">Sii Specifico, non Vago</div>
+              <div class="tip-text">Invece di "Scrivimi un testo", scrivi "Scrivimi un post LinkedIn di 150 parole sul
+                tema X, tono professionale, per un pubblico di imprenditori under 40". Più dettagli → output migliore.
+              </div>
+            </div>
+          </div>
+          <div class="tip-item t2">
+            <div class="tip-icon">📏</div>
+            <div>
+              <div class="tip-title">Definisci Sempre il Formato di Output</div>
+              <div class="tip-text">Specifica esplicitamente come vuoi la risposta: bullet points, tabella, JSON,
+                paragrafi, numero di parole. Il modello seguirà il formato richiesto se lo dichiari in modo chiaro.
+              </div>
+            </div>
+          </div>
+          <div class="tip-item t3">
+            <div class="tip-icon">🚫</div>
+            <div>
+              <div class="tip-title">Usa "Cosa NON fare" con Attenzione</div>
+              <div class="tip-text">I modelli a volte si fissano sulle negazioni. Preferisci formulazioni positive:
+                invece di "Non essere formale" scrivi "Usa un tono conversazionale e amichevole".</div>
+            </div>
+          </div>
+          <div class="tip-item t4">
+            <div class="tip-icon">🔄</div>
+            <div>
+              <div class="tip-title">Itera e Raffina Sempre</div>
+              <div class="tip-text">Il primo prompt raramente è perfetto. Testa, analizza il risultato, identifica cosa
+                manca e aggiungi un vincolo o un esempio. Il prompt engineering è un processo iterativo.</div>
+            </div>
+          </div>
+          <div class="tip-item t5">
+            <div class="tip-icon">🧪</div>
+            <div>
+              <div class="tip-title">Separa le Istruzioni dai Dati</div>
+              <div class="tip-text">Usa delimitatori (""", ###, &lt;tag&gt;) per separare chiaramente le istruzioni dal
+                contenuto che il modello deve elaborare. Previene la prompt injection e migliora la comprensione.</div>
+            </div>
+          </div>
+          <div class="tip-item t6">
+            <div class="tip-icon">🎭</div>
+            <div>
+              <div class="tip-title">Combina le Tecniche</div>
+              <div class="tip-text">Le tecniche non si escludono! Puoi combinare Role Prompting + Chain of Thought +
+                Structured Output in un unico prompt potente: "Sei un esperto di X. Ragiona passo per passo. Rispondi in
+                JSON."</div>
+            </div>
+          </div>
+          <div class="tip-item t1">
+            <div class="tip-icon">📊</div>
+            <div>
+              <div class="tip-title">Calibra la Temperatura Semantica</div>
+              <div class="tip-text">Per risposte creative: incoraggia esplorazione ("Proponi 3 approcci diversi, anche
+                insoliti"). Per risposte fattuali: chiedi certezza ("Rispondi solo se sei sicuro, altrimenti di' che non
+                lo sai").</div>
+            </div>
+          </div>
+          <div class="tip-item t3">
+            <div class="tip-icon">💾</div>
+            <div>
+              <div class="tip-title">Salva i Prompt che Funzionano</div>
+              <div class="tip-text">Crea una libreria personale di prompt collaudati. Parametrizza i valori variabili
+                con [placeholder] e riusali come template. NotebookLM è perfetto per archiviare e organizzare questi
+                template!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast">✅ Prompt copiato negli appunti!</div>
+
+  <script>
+    // --- NAVIGATION ---
+    function showSection(id) {
+      document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById('section-' + id).classList.add('active');
+      const navEl = document.getElementById('nav-' + id);
+      if (navEl) navEl.classList.add('active');
+    }
+
+    // --- TOGGLE CARDS ---
+    function toggleCard(el) {
+      const details = el.querySelector('.card-details');
+      if (!details) return;
+      const isOpen = details.classList.contains('open');
+      document.querySelectorAll('.card-details').forEach(d => { d.classList.remove('open'); });
+      document.querySelectorAll('.tech-card').forEach(c => c.classList.remove('expanded'));
+      if (!isOpen) {
+        details.classList.add('open');
+        el.classList.add('expanded');
+      }
+    }
+
+    function toggleEx(el) {
+      const details = el.querySelector('.ex-details');
+      if (!details) return;
+      const isOpen = details.classList.contains('open');
+      document.querySelectorAll('.ex-details').forEach(d => d.classList.remove('open'));
+      document.querySelectorAll('.ex-card').forEach(c => c.classList.remove('ex-expanded'));
+      if (!isOpen) {
+        details.classList.add('open');
+        el.classList.add('ex-expanded');
+      }
+    }
+
+    // --- SEARCH ---
+    function filterCards() {
+      const q = document.getElementById('search-input').value.toLowerCase();
+      document.querySelectorAll('#cards-container .tech-card').forEach(card => {
+        const text = card.textContent.toLowerCase();
+        card.style.display = text.includes(q) ? '' : 'none';
+      });
+    }
+
+    // --- PROMPT BUILDER ---
+    function buildPrompt() {
+      const role = document.getElementById('b-role').value.trim();
+      const task = document.getElementById('b-task').value.trim();
+      const context = document.getElementById('b-context').value.trim();
+      const technique = document.getElementById('b-technique').value;
+      const format = document.getElementById('b-format').value;
+      const constraints = document.getElementById('b-constraints').value.trim();
+      const lang = document.getElementById('b-lang').value;
+
+      if (!role && !task) {
+        document.getElementById('prompt-output').textContent = 'Compila i campi sopra per generare il tuo prompt ottimizzato...';
+        return;
+      }
+
+      let prompt = '';
+
+      if (role) prompt += `Sei ${role}.\n\n`;
+      if (context) prompt += `### CONTESTO ###\n${context}\n\n`;
+      if (task) prompt += `### COMPITO ###\n${task}\n\n`;
+
+      if (technique === 'cot') {
+        prompt += `### ISTRUZIONI ###\nRagiona passo per passo prima di fornire la risposta finale. Mostra il tuo processo di pensiero.\n\n`;
+      } else if (technique === 'fewshot') {
+        prompt += `### ISTRUZIONI ###\nEcco alcuni esempi del formato atteso:\n[Esempio 1]\n[Esempio 2]\nOra procedi con lo stesso schema.\n\n`;
+      } else if (technique === 'self') {
+        prompt += `### ISTRUZIONI ###\nGenera una prima risposta, poi criticala identificando eventuali lacune, infine produci la versione migliorata finale.\n\n`;
+      } else if (technique === 'expert') {
+        prompt += `### ISTRUZIONI ###\nSimula un panel di 3 esperti con prospettive diverse che discutono il tema. Poi fornisci una sintesi delle loro posizioni.\n\n`;
+      }
+
+      if (format === 'bullet') prompt += `### FORMATO ###\nRispondi con un elenco puntato (•) chiaro e conciso.\n\n`;
+      else if (format === 'numbered') prompt += `### FORMATO ###\nRispondi con un elenco numerato, un punto per ogni idea chiave.\n\n`;
+      else if (format === 'json') prompt += `### FORMATO ###\nRispondi SOLO con JSON valido, senza testo aggiuntivo.\n\n`;
+      else if (format === 'table') prompt += `### FORMATO ###\nOrganizza la risposta in una tabella Markdown con colonne appropriate.\n\n`;
+      else if (format === 'para') prompt += `### FORMATO ###\nScrivi in paragrafi narrativi ben strutturati.\n\n`;
+
+      if (constraints) prompt += `### VINCOLI ###\n${constraints}\n\n`;
+      if (lang !== 'italiano') prompt += `### LINGUA ###\nRispondi in ${lang}.\n\n`;
+
+      document.getElementById('prompt-output').textContent = prompt.trim();
+    }
+
+    function copyPrompt() {
+      const text = document.getElementById('prompt-output').textContent;
+      if (text.includes('Compila i campi')) return;
+      navigator.clipboard.writeText(text).then(() => {
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2500);
+      });
+    }
+
+    function resetBuilder() {
+      ['b-role', 'b-task', 'b-context', 'b-constraints'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('b-technique').value = '';
+      document.getElementById('b-format').value = '';
+      document.getElementById('b-lang').value = 'italiano';
+      buildPrompt();
+    }
+
+    // Init
+    showSection('overview');
+  </script>
+</body>
+
+</html>
